@@ -1,0 +1,262 @@
+---
+title: "Forecasting the 2024 US Presidential Election: A Poll-of-Polls Approach to Predict the Outcome"
+subtitle: "Utilizing Poll Aggregation and Statistical Modeling to Project a Clear Path for the Presidential Race"
+author: 
+  - Ruiying Li
+  - Lorina Yang
+thanks: "Code and data are available at: https://github.com/Lorina-Y/US-Presidential-election.git."
+date: today
+date-format: long
+abstract: "First sentence. Second sentence. Third sentence. Fourth sentence."
+format: pdf
+number-sections: true
+bibliography: references.bib
+---
+
+```{r}
+#| include: false
+#| warning: false
+#| message: false
+
+library(tidyverse)
+library(ggplot2)
+library(rstanarm)
+library(here)
+library(modelsummary)
+
+data <-
+  read_csv(
+    file = "../data/02-analysis_data/analysis_data.csv",
+    show_col_types = FALSE
+  )
+
+```
+
+
+# Introduction
+The ongoing U.S. presidential election is a major focus in the media, finance, and politics, making it essential to provide reliable forecasts and understand the factors influencing varying levels of candidate support.
+This paper aims to give reliable prediction of election outcome by building a multiple linear regression (MLR) model to forecast the percentage of voter support for top 5 candidates in the 2024 U.S. presidential election.
+
+## Paper Structure
+The remainder of this paper follows a structure @sec-data,@sec-model about MLR model,@sec-result,@sec-discussion,@sec-appendix1 about pollster methodology,@sec-appendix2  about our methodology on survey.
+
+## Estimand paragraph
+This paper's estimand is the predicted supported percentage, we estimate it by using predictors such as sample size, party,pollster,poll quality score, transparency score and candidat name. These predictors allow for a more nuanced understanding of how various elements affect a candidate's polling percentage.
+
+## Results paragraph
+
+
+
+
+
+
+
+# Data {#sec-data}
+
+## Overview
+
+We use the statistical programming language R [@citeR].... Our data [@shelter].... Following @tellingstories, we consider...
+Here are variables used in the paper:
+pct: This is the response variable, representing the percentage of support a candidate received in a poll.
+sample_size: The size of the sample surveyed in each poll. This can be a predictor as larger samples typically yield more reliable poll results.
+party: The party affiliation of the candidate (e.g., Democrat or Republican). 
+pollster: The name of the polling organization that conducted the poll. 
+answer: The candidate’s name (e.g., Harris, Trump). In this paper, we only study the top 5 candidate most frequently appeared in answer column.
+transparency_score: A numeric score representing the transparency of the poll's methodology. 
+pollscore: A score evaluating the quality of the poll, likely based on the pollster's historical accuracy. 
+state: A location name represent states in the U.S.
+
+The 10 observation of dataset we use is displayed below:
+```{r}
+#| echo: false
+head(data)
+
+```
+
+
+## Measurement
+The method involves translating public opinion polling into measurable data for analysis. Polls capture the percentage of support for each candidate, recorded as pct, along with factors like sample_size, transparency_score, and pollscore, which reflect the quality and methodology of each poll. These variables represent the underlying polling practices and voter sentiment, allowing us to analyze how real-world opinions are measured and recorded in the dataset to forecast election outcomes.
+
+## Outcome variables
+The paper predict an outcome variables of PCT, which represent the percentage of support a candidate received in a poll, allow use to predict which candidate get most support.
+
+Add graphs, tables and text. Use sub-sub-headings for each outcome variable or update the subheading to be singular.
+
+```{r}
+#| label: fig-pct
+#| fig-cap: Average Percentage Support(pct) by top 6 Candidate
+#| echo: false
+#| warning: false
+#| message: false
+ggplot(data, aes(x = answer, y = pct, fill = answer)) +
+  geom_bar(stat = "summary", fun = "mean") +
+  labs(title = "Average Percentage Support by Candidate", x = "Candidate", y = "Average Support (%)") +
+  theme_minimal()
+
+
+
+```
+
+## Predictor variables
+
+Add graphs, tables and text.
+
+Use sub-sub-headings for each outcome variable and feel free to combine a few into one if they go together naturally.
+
+```{r}
+#| echo: false
+table(data$party)
+```
+
+
+# Model {#sec-model}
+
+The goal of our modelling strategy is use multiple linear regression to model the relationship between response variable pct, and 5 predictors variables including sample_size, party, transparency_score, pollscore.
+MLR allows us to estimate the effect of each predictor on the response while controlling for other factors in the model.
+
+## Model set-up
+
+Define $y_i$ as the pct- percentage support a candidate get. Then $\beta_i$ is the sample_size, pollscore, transparency score, party.
+
+We run the model in R [@citeR].
+
+
+### Model justification
+We expect a positive relationship between the pct and sample size,pollscore and transparency score. And the party variable may show significant effects for certain categories (such as Democrat or Republican), we expect Candidates from major parties may have higher support compared to those from minor parties. 
+
+```{r}
+#| echo: false
+first_model <-
+  readRDS(file = here::here("models/first_model.rds"))
+first_model <- lm(data = data, pct ~ sample_size + party + transparency_score + pollscore )
+```
+
+```{r}
+#| label: fig-Resid_fitted
+#| fig-cap: Average Percentage Support(pct) by top 6 Candidate
+#| echo: false
+#| warning: false
+#| message: false
+
+e_hat <- resid(first_model)
+y_hat <- fitted(first_model)
+plot(x = y_hat, y = e_hat, main="Residual vs Fitted", xlab="Fitted",
+    ylab="Residuals")
+```
+
+
+
+# Results {#sec-result}
+
+Our results are summarized in @tbl-modelresults.
+
+```{r}
+#| echo: false
+#| eval: true
+#| warning: false
+#| message: false
+
+summary(first_model)
+```
+
+```{r}
+#| echo: false
+#| eval: true
+#| label: tbl-modelresults
+#| tbl-cap: "Explanatory models of flight time based on wing width and wing length"
+#| warning: false
+
+modelsummary(
+  list(
+    "First model" = first_model
+  ),
+  fmt = 2
+)
+```
+
+**Conclusion**
+In conclusion, the multiple linear regression model explains 84.44% of the variability in candidate support, with an Adjusted R-squared of 0.8444. Key findings show that larger sample sizes slightly reduce support percentages, while party affiliation plays a significant role, with Green and Independent candidates receiving notably less support compared to Republicans. Both transparency score and poll quality score negatively affect support, suggesting more credible polls may report lower percentages. Despite a few outliers, the model is highly significant, providing valuable insights into factors influencing candidate support.
+
+# Discussion {#sec-discussion}
+
+## First discussion point {#sec-first-point}
+
+If my paper were 10 pages, then should be be at least 2.5 pages. The discussion is a chance to show off what you know and what you learnt from all this. 
+
+## Second discussion point
+
+Please don't use these as sub-heading labels - change them to be what your point actually is.
+
+## Third discussion point
+
+## Weaknesses and next steps
+
+Weaknesses and next steps should also be included.
+
+\newpage
+
+\appendix
+
+# Appendix1 {#sec-appendix1}
+
+# Appendix2 {#sec-appendix2}
+# Additional data details
+
+# Model details {#sec-model-details}
+
+## Posterior predictive check
+
+<!-- In @fig-ppcheckandposteriorvsprior-1 we implement a posterior predictive check. This shows... -->
+
+<!-- In @fig-ppcheckandposteriorvsprior-2 we compare the posterior with the prior. This shows...  -->
+
+```{r}
+#| eval: true
+#| echo: false
+#| message: false
+#| warning: false
+#| label: fig-ppcheckandposteriorvsprior
+#| layout-ncol: 2
+#| fig-cap: "Examining how the model fits, and is affected by, the data"
+#| fig-subcap: ["Posterior prediction check", "Comparing the posterior with the prior"]
+# 
+# pp_check(first_model) +
+#   theme_classic() +
+#   theme(legend.position = "bottom")
+# 
+# posterior_vs_prior(first_model) +
+#   theme_minimal() +
+#   scale_color_brewer(palette = "Set1") +
+#   theme(legend.position = "bottom") +
+#   coord_flip()
+```
+
+## Diagnostics
+
+<!-- @fig-stanareyouokay-1 is a trace plot. It shows... This suggests... -->
+
+<!-- @fig-stanareyouokay-2 is a Rhat plot. It shows... This suggests... -->
+
+```{r}
+#| echo: false
+#| eval: true
+#| message: false
+#| warning: false
+#| label: fig-stanareyouokay
+#| fig-cap: "Checking the convergence of the MCMC algorithm"
+#| fig-subcap: ["Trace plot", "Rhat plot"]
+#| layout-ncol: 2
+
+# plot(first_model, "trace")
+# 
+# plot(first_model, "rhat")
+```
+
+
+
+\newpage
+
+
+# References
+
+
