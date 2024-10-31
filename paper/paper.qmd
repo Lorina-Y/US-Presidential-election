@@ -9,6 +9,7 @@ date: today
 date-format: long
 abstract: "First sentence. Second sentence. Third sentence. Fourth sentence."
 format: pdf
+toc: true
 number-sections: true
 bibliography: references.bib
 ---
@@ -24,6 +25,7 @@ library(rstanarm)
 library(here)
 library(modelsummary)
 
+
 data <-
   read_csv(
     file = "../data/02-analysis_data/analysis_data.csv",
@@ -34,57 +36,50 @@ data <-
 
 
 # Introduction
-The ongoing U.S. presidential election is a major focus in the media, finance, and politics, making it essential to provide reliable forecasts and understand the factors influencing varying levels of candidate support.
-This paper aims to give reliable prediction of election outcome by building a multiple linear regression (MLR) model to forecast the percentage of voter support for top 5 candidates in the 2024 U.S. presidential election.
+The ongoing U.S. presidential election is a major focus in the media, finance, and politics, making it essential to provide reliable forecasts and understand the factors influencing varying levels of candidate support. This study utilizes Bayesian linear and logistic regression models to analyze and predict support for Kamala Harris and Donald Trump, integrating poll-level data on support percentages, poll quality, sample size, and time trends.
+
+**Aim**  
+Our primary objectives are to examine how poll characteristics—sample size and quality—influence reported support percentages and to track shifts in support over time for Harris and Trump. The linear regression model evaluates these poll factors, assessing their impact on support stability. Additionally, time-trend analysis identifies evolving voter sentiment, capturing a recent change in support rate for candidates. And second, to forecast aggregate support rates for Harris and Trump, facilitating comparison. We use the Bayesian linear regression model to estimate overall support rate aggregate by pollesters, a logistic model complements this by estimating each candidate’s probability of success directly, adding a probabilistic perspective.
+
+**Estimand**  
+The primary estimands include the impact of poll characteristics on support percentage and each candidate's probability of winning. The linear model provides insights into how polling factors influence reported support.
+For the Bayesian forecasting component, The key estimand in this analysis is the probability of support for Harris versus Trump for each poll, aggregated to estimate an overall probability of each candidate’s support. This probability is informed by predictors including poll-specific support percentage (pct), poll quality (pollscore) and sample size, providing a detailed estimate of each candidate’s likelihood of winning.
+
+**Results**  
+Our results show that sample size and poll quality have minimal impact on support rates, suggesting robustness in reported voter sentiment. Time-trend analysis reveals that Trump’s support was initially higher; however, recent data indicates a surge in support for Harris, overtaking Trump. The linear model’s aggregate forecast shows nearly equal support rates (44.76% for Harris vs. 44.73% for Trump), while the logistic model offers a probabilistic view, indicating a slight edge for Harris. Together, these models provide a comprehensive understanding of the election dynamics.
+
+
+**Results**
+To assess how specific poll characteristics influence reported support percentages (`pct`), we applied a Bayesian linear regression model focused on sample size and poll quality (`pollscore`). Results indicated a slight negative association between poll quality and support percentage, with support decreasing from around 46 to 44 as quality increased, suggesting limited impact. Additionally, a nearly flat trend line for sample size revealed no meaningful relationship with support levels. These findings suggest that poll characteristics such as quality and size have minimal effects on support, reinforcing the reliability of public sentiment assessments.
+
+The results show that while the linear regression model predicts similar overall support rates for Harris and Trump (44.76% and 44.73%, respectively), the logistic model indicates a slight advantage for Harris, with a probability of support of 0.303, compared to Trump’s 0.251. These results underscore the linear model's strength in examining predictor effects and aggregate trends, while the logistic model’s probability outcomes provide additional insight into the competitive landscape, enriching the forecast with a candidate-to-candidate comparison. Together, these models offer a robust view of election dynamics, grounded in poll data characteristics and forecasted support probabilities.
+
 
 ## Paper Structure
 The remainder of this paper follows a structure @sec-data,@sec-model about MLR model,@sec-result,@sec-discussion,@sec-appendix1 about pollster methodology,@sec-appendix2  about our methodology on survey.
 
-## Estimand paragraph
-This paper's estimand is the predicted supported percentage, we estimate it by using predictors such as sample size, party,pollster,poll quality score, transparency score and candidat name. These predictors allow for a more nuanced understanding of how various elements affect a candidate's polling percentage.
-
-## Results paragraph
-
-
-
-
-
+## Software and packages used
+We use the statistical programming language R [@citeR] and the following packages: tidyverse [@tidyverse], dplyr [@dplyr], readr [@readr], ggplot2 [@ggplot2], janitor [@janitor], lubridate [@lubridate], broom [@broom], modelsummary [@modelsummary], rstanarm [@rstanarm], here [@here].
 
 
 # Data {#sec-data}
 
 ## Overview
 
-We use the statistical programming language R [@citeR].... Our data [@shelter].... Following @tellingstories, we consider...
-Here are variables used in the paper:
-pct: This is the response variable, representing the percentage of support a candidate received in a poll.
-sample_size: The size of the sample surveyed in each poll. This can be a predictor as larger samples typically yield more reliable poll results.
-party: The party affiliation of the candidate (e.g., Democrat or Republican). 
-pollster: The name of the polling organization that conducted the poll. 
-answer: The candidate’s name (e.g., Harris, Trump). In this paper, we only study the top 5 candidate most frequently appeared in answer column.
-transparency_score: A numeric score representing the transparency of the poll's methodology. 
-pollscore: A score evaluating the quality of the poll, likely based on the pollster's historical accuracy. 
-state: A location name represent states in the U.S.
 
-The 10 observation of dataset we use is displayed below:
-```{r}
-#| echo: false
-head(data)
-
-```
+Our analysis, conducted in statistical programming language R [@citeR], utilizes polling data from FiveThirtyEight’s repository on the 2024 U.S. Presidential election polls [@fivethirtyeight]. This dataset includes variables such as pollster, methodology, sample size, poll end_dates, and support percentages 'pct' for candidates, allowing us to examine how support fluctuates over time and in response to poll characteristics for each candidate. To align with our study's focus, we cleaned the dataset to remove inconsistencies and retained only relevant variables, with only focus on data of 2 Candidate "Trump" and "Harris", preparing the support rate for forecasting the possible winner and examine the trend.
 
 
-## Measurement
-The method involves translating public opinion polling into measurable data for analysis. Polls capture the percentage of support for each candidate, recorded as pct, along with factors like sample_size, transparency_score, and pollscore, which reflect the quality and methodology of each poll. These variables represent the underlying polling practices and voter sentiment, allowing us to analyze how real-world opinions are measured and recorded in the dataset to forecast election outcomes.
+## Measurement 写完appendix再修改加更多
+This dataset reflects public sentiment on the 2024 Presidential race, gathered through various polling methods,which involves translating public opinion polling into measurable data for analysis.The polling methods including online surveys and phone interviews by organizations like Morning Consult and TIPP. Each poll captures respondent preferences for candidates, sampling strategies, and timing, along with poll related factors, such as sample_size and pollscore, forming structured data points. 
+These variables represent the underlying polling practices and voter sentiment, after cleaning, the data enables us to analyze factors influencing support rates and model time trends in voter preferences, crucial for accurate election forecasting.
 
-## Outcome variables
-The paper predict an outcome variables of PCT, which represent the percentage of support a candidate received in a poll, allow use to predict which candidate get most support.
-
-Add graphs, tables and text. Use sub-sub-headings for each outcome variable or update the subheading to be singular.
-
+## Response variables
+In our analysis, we use two response variables to capture different aspects of candidate support. For the linear model, the response variable is `pct`, representing the percentage of respondents indicating support for each candidate in individual polls. This continuous variable allows us to explore how factors like poll quality (`pollscore`) and sample size influence reported support percentages. 
+For the logistic model, we use `candidate_dummy`, a binary variable coded as `1` for Harris and `0` for Trump. This binary outcome enables us to estimate the probability of support for each candidate, providing a probabilistic forecast of each candidate’s chance of winning based on aggregated poll characteristics.
 ```{r}
 #| label: fig-pct
-#| fig-cap: Average Percentage Support(pct) by top 6 Candidate
+#| fig-cap: Average Percentage Support(pct) for Harris and Trump
 #| echo: false
 #| warning: false
 #| message: false
@@ -98,84 +93,387 @@ ggplot(data, aes(x = answer, y = pct, fill = answer)) +
 ```
 
 ## Predictor variables
+The model incorporates a set of key predictor variables aimed at refining forecast accuracy by capturing unique attributes of each poll. 
+**Average Support (`pct`)** is a predictor in the second Bayesian logistic model, it provides the support percentage reported by each poll for the candidate in question, serving as a direct indicator of voter preference. 
+**Poll Quality (`pollscore`)** reflects the reliability of each poll based on historical accuracy and transparency, with higher scores indicating greater reliability.
+**Sample Size (`sample_size`)** accounts for the number of respondents per poll, controlling for the variability that smaller samples may introduce.
+Together, these predictors enable a nuanced analysis of support that accounts for each poll's quality, methodology, and respondent base, leading to a robust and interpretable model of voter preference.
 
-Add graphs, tables and text.
-
-Use sub-sub-headings for each outcome variable and feel free to combine a few into one if they go together naturally.
-
-```{r}
-#| echo: false
-table(data$party)
-```
 
 
 # Model {#sec-model}
 
-The goal of our modelling strategy is use multiple linear regression to model the relationship between response variable pct, and 5 predictors variables including sample_size, party, transparency_score, pollscore.
-MLR allows us to estimate the effect of each predictor on the response while controlling for other factors in the model.
+## Model Overview
+This analysis employs a Bayesian linear regression model and a Bayesian logistic regression model to predict support for each candidate, Harris and Trump, in the 2024 U.S. presidential election. By using a “poll-of-polls” approach, we aggregate data from multiple polls, creating a comprehensive view of voter support. 
+The linear model estimates how poll characteristics like sample size and poll quality influence reported support percentages (pct), capturing trends over time. Meanwhile, the logistic model provides a probabilistic forecast, estimating each candidate's likelihood of winning based on aggregated support metrics. Both models incorporate Bayesian inference, allowing us to account for variability and uncertainty in polling data and offering a robust election forecast.
+
+## Model selection
+We selected the Bayesian linear and logistic models based on their capacity to integrate prior information and address different aspects of our research objectives. The linear model was chosen for its ability to assess predictor effects on support percentages (pct), making it ideal for understanding poll characteristics' impact on support rates. The Bayesian logistic model was selected for its suitability in estimating support probabilities, capturing the competition between candidates. Model fit and Bayesian methods was evaluated use posterior predictive checks, also allow for rigorous model diagnostics, validating the models against observed polling data and enhancing forecast reliability.
 
 ## Model set-up
 
-Define $y_i$ as the pct- percentage support a candidate get. Then $\beta_i$ is the sample_size, pollscore, transparency score, party.
+### Bayesian linear model
+In the Bayesian linear regression model, the response variable 'pct' represents the percentage of respondents supporting each candidate in individual polls.
+This model can be express as below, In the Bayesian linear regression model, the outcome variable, `pct`, represents the percentage of respondents supporting each candidate in individual polls. This model is expressed as below, where \(\beta_0\) is the intercept, \(\beta_1\) and \(\beta_2\) are coefficients for sample size and poll quality (pollscore), respectively, and \(\epsilon_i\) represents the error term, capturing random variability in support percentages.
+$$
+\ \mathrm{pct}_i = \beta_0 + \beta_1 \cdot \mathrm{sample\_size}_i + \beta_2 \cdot \mathrm{pollscore}_i + \epsilon_i
+$$
+
+```{r}
+#| include: false
+#| warning: false
+#| message: false
+set.seed(304)
+BA_linear_model <- stan_glm(
+  pct ~ sample_size + pollscore,
+  data = data,
+  family = gaussian(),
+  prior = normal(location = 0, scale = 2.5, autoscale = TRUE),
+  prior_intercept = normal(location = 45, scale = 10, autoscale = TRUE),
+  prior_aux = exponential(rate = 1),
+  chains = 4,
+  iter = 2000,
+  refresh = 0,
+  seed = 304
+)
+
+    
+saveRDS(
+  BA_linear_model,
+  file = "../models/BA_linear_model.rds"
+)
+```
+
+
+
+
+### Bayesian logistic model
+In the Bayesian logistic regression model, the outcome variable is "candidate_dummy", a binary indicator of support for each candidate, where `1` represents Harris and `0` represents Trump. Predictor variables include **support percentage (`pct`)**, **poll quality (`pollscore`)**, **sample size (`sample_size`)**, each representing critical aspects of poll characteristics that impact voter support. The model is specified as follows:
+
+Define $y_i$ as the political preference of the respondent and equal to 1 if Biden and 0 if Trump. Then each $\beta_i$ coefficient measures the effect of the corresponding predictor on the log-odds of Harris support
+$$
+\log(\frac{P(y_i = 1)}{1 - P(y_i = 1)}) = \beta_0 + \beta_1 \cdot \mathrm{pct}_i + \beta_2 \cdot \mathrm{pollscore}_i + \beta_3 \cdot \mathrm{sample\_size}_i + \epsilon_i
+$$
+```{r}
+#| include: false
+#| warning: false
+#| message: false
+
+#### Bayesian modeling ####
+# Change 'pollster' and 'state' to factor variables
+data <- data |>
+  mutate(pollster = factor(pollster))
+    
+set.seed(304)
+BA_logis_model <- stan_glm(
+  candidate_dummy ~ pct + sample_size + pollscore,
+  data = data,
+  family = binomial(link = "logit"),
+  prior = normal(location = 0, scale = 5, autoscale = TRUE),
+  prior_intercept = normal(location = 45, scale = 10, autoscale = TRUE),
+  chains = 4,
+  iter = 2000,
+  refresh = 0,
+  seed = 304
+)
+    
+saveRDS(
+  BA_logis_model,
+  file = "../models/BA_logis_model.rds"
+)
+
+```
 
 We run the model in R [@citeR].
 
+### Bayesian prior
+In our Bayesian framework, priors are set for each model coefficient based on historical data and reasonable assumptions about each predictor’s influence.
+In the Bayesian linear model, The prior for intercept of pct for Harries and Trump is set as 'Normal(45,8)", by historical data, the mean support rate should be around 45, and a variance of 8 yield to great flexibility.
+In the Bayesian logistic model, a prior for intercept of dummy variable "Candidate_dummy" is set as 'Normal(0, 10)', assumes that baseline support is close to evenly split but allows the data to drive the estimate without excessively constraining it to initial assumptions, and improve flexibility.
+For both 2 model, we chose `Normal(0, 2.5)` as the prior distribution for each predictor. This prior centering around zero (implying no effect) but with a standard deviation of 2.5, allowing flexibility to capture both small and moderate effects without imposing strong assumptions. 
+This choice reflects a balance between letting the data primarily drive coefficient estimates and acknowledging some prior uncertainty. 
+Using Markov Chain Monte Carlo (MCMC) sampling, the model estimates posterior distributions for each coefficient, yielding both mean estimates and credible intervals that capture uncertainty in support probabilities.
 
-### Model justification
-We expect a positive relationship between the pct and sample size,pollscore and transparency score. And the party variable may show significant effects for certain categories (such as Democrat or Republican), we expect Candidates from major parties may have higher support compared to those from minor parties. 
+$$
+\mathrm{pct}_i | \mu_i \sim \text{Normal}(\mu_i, \sigma) \\
+\mu_i = \beta_0 + \beta_1 \times \mathrm{sample\_size}_i + \beta_2 \times \mathrm{pollscore}_i \\
+\beta_0 \sim \text{Normal}(45, 10) \\
+\beta_1 \sim \text{Normal}(0, 2.5) \\
+\beta_2 \sim \text{Normal}(0, 2.5) \\
+\sigma \sim \text{Exponential}(1) \\
+$$
+
+$$
+y_i | \pi_i \sim \text{Bern}(\pi_i) \\
+\text{logit}(\pi_i) = \beta_0 + \beta_1 \times \text{pct}_i + \beta_2 \times \text{pollscore}_i + \beta_3 \times \text{sample_size}_i \\
+\beta_0 \sim \text{Normal}(45, 10) \\
+\beta_1 \sim \text{Normal}(0, 2.5) \\
+\beta_2 \sim \text{Normal}(0, 2.5) \\
+\beta_3 \sim \text{Normal}(0, 2.5) \\
+$$
+
+## Model justification
+Fitness of our Bayesian linear and logistic regression models are examine by the pp_check() function, which use for posterior predictive checks, allowing us to visually assess model fit by comparing observed data to simulated data from the posterior distribution. This step helps validate model assumptions and detect any potential misfit.
+However, our approach has limitations. We assume that polling errors are normally distributed and that predictors like sample size and poll quality have a linear impact on support rates. This may overlook nonlinear effects or unobserved confounders, such as regional bias or demographic shifts. Additionally, the models assume independence across polls, potentially ignoring correlations from repeated polling by the same pollster or temporal trends. These limitations highlight areas for refinement, such as including more predictors or accounting for pollster-specific effects, to enhance forecasting accuracy.
 
 ```{r}
 #| echo: false
-first_model <-
-  readRDS(file = here::here("models/first_model.rds"))
-first_model <- lm(data = data, pct ~ sample_size + party + transparency_score + pollscore )
+#| warning: false
+#| message: false
+BA_linear_model <-
+  readRDS(file = "../models/BA_linear_model.rds")
+
+# Posterior predictive checks for the linear model
+pp_check(BA_linear_model) +
+  theme_classic() +
+  theme(legend.position = "bottom")
+
+posterior_vs_prior(BA_linear_model) +
+  theme_minimal() +
+  scale_color_brewer(palette = "Set1") +
+  theme(legend.position = "bottom") +
+  coord_flip()
 ```
 
+
+
 ```{r}
-#| label: fig-Resid_fitted
-#| fig-cap: Average Percentage Support(pct) by top 6 Candidate
 #| echo: false
 #| warning: false
 #| message: false
 
-e_hat <- resid(first_model)
-y_hat <- fitted(first_model)
-plot(x = y_hat, y = e_hat, main="Residual vs Fitted", xlab="Fitted",
-    ylab="Residuals")
+BA_logis_model <-
+  readRDS(file = "../models/BA_logis_model.rds")
+
+# Posterior predictive checks for the logistic model
+pp_check(BA_logis_model)+
+  theme_classic() +
+  theme(legend.position = "bottom")
+
+posterior_vs_prior(BA_linear_model) +
+  theme_minimal() +
+  scale_color_brewer(palette = "Set1") +
+  theme(legend.position = "bottom") +
+  coord_flip()
+
 ```
 
+
+\newpage
 
 
 # Results {#sec-result}
 
-Our results are summarized in @tbl-modelresults.
-
 ```{r}
 #| echo: false
 #| eval: true
 #| warning: false
 #| message: false
 
-summary(first_model)
+# check estimated coefficients by summary table
+summary(BA_linear_model)
 ```
+The Bayesian linear regression model provides insights into how poll characteristics, specifically sample_size and pollscore, influence reported support percentage (pct). The posterior mean for sample_size is close to zero with a 95% credible interval that centers around zero, indicating that sample size has no significant impact on support percentage in this model. The coefficient for pollscore has a mean of -0.7 with a 95% credible interval from -0.8 to -0.6, suggesting a small but consistent negative effect. This means that as poll quality increases (higher pollscore), reported support slightly decreases, though this effect is modest.
+
 
 ```{r}
+#| label: fig-mcmc
+#| fig-cap: 95% CI for Coefficients of sample_size, pollescore in linear regression model-a MCMC areas plot
 #| echo: false
-#| eval: true
-#| label: tbl-modelresults
-#| tbl-cap: "Explanatory models of flight time based on wing width and wing length"
 #| warning: false
+#| message: false
 
-modelsummary(
-  list(
-    "First model" = first_model
-  ),
-  fmt = 2
-)
+library(bayesplot)
+# Extract posterior draws for each coefficient
+posterior_draws <- as.data.frame(as.matrix(BA_linear_model))
+
+# Plot credible intervals for each coefficient
+mcmc_areas(posterior_draws, 
+           pars = c("sample_size", "pollscore"),
+           prob = 0.95) + 
+  labs(title = "95% Credible Intervals for Coefficients",
+       x = "Coefficient Value",
+       y = "Predictors") +
+  theme_minimal()
+```
+The (@fig-mcmc) MCMC areas plot provides a visualization of the 95% credible intervals for the coefficients in our Bayesian linear regression model. For the `pollscore` coefficient, the credible interval is entirely below zero, aligning with the model summary’s indication of a modest negative effect. This suggests that higher poll quality is associated with slightly lower reported support percentages. In contrast, the `sample_size` coefficient is centered around zero, with its credible interval covering zero, indicating no significant effect on `pct`. This visualization reinforces the findings from the summary by highlighting which predictors significantly influence the support percentage.
+
+
+```{r}
+#| label: fig-pollscore
+#| fig-cap:  Effect of poll quality (pollscore) on support percentage (pct), showing a minor negative trend suggesting slightly lower support percentages in higher-quality polls.
+#| echo: false
+#| warning: false
+#| message: false
+
+# Plot effect of pollscore on pct
+ggplot(data, aes(x = pollscore, y = pct)) +
+  geom_point(alpha = 0.6) +
+  geom_smooth(method = "lm", se = TRUE, color = "blue") +
+  labs(title = "Effect of Poll Quality (Pollscore) on Support Percentage",
+       x = "Poll Quality (Pollscore)", y = "Support Percentage (pct)") +
+  theme_minimal()
+```
+In (@fig-pollscore), each point represents a poll’s support percentage (pct) plotted against its poll quality score (pollscore). The trend line shows a slight negative slope, declining from a support percentage of around 46 to 44, suggesting a weak negative relationship between poll quality and reported support. 
+This trend implies that as poll quality increases, the reported support percentage marginally decreases. However, this effect is minor, indicating that poll quality has limited influence on support levels, possibly reflecting the stability of support trends despite variations in poll quality across different polls.
+
+
+```{r}
+#| label: fig-size
+#| fig-cap: Relationship between log(sample siz)e and support percentage (pct), indicating minimal effect of sample size on rep
+#| echo: false
+#| warning: false
+#| message: false
+
+# Plot effect of log transformed sample size on pct
+ggplot(data, aes(x = log(sample_size), y = pct)) +
+  geom_point(alpha = 0.6) +
+  geom_smooth(method = "lm", se = TRUE, color = "green") +
+  labs(title = "Effect of Sample Size on Support Percentage (Log Scale)",
+       x = "Sample Size (log scale)", y = "Support Percentage (pct)") +
+  theme_minimal()
+
+```
+In (@fig-size), the relationship between `sample_size` and `pct` is displayed with a log scale on the x-axis to handle the wide range of sample sizes. The trend line is nearly flat, indicating minimal association between sample size and support percentage. 
+This flat trend suggests that larger sample sizes do not significantly impact reported support levels. The result implies that variations in sample size among polls do not meaningfully shift support percentages, reinforcing the stability of support trends across different sample sizes.
+
+
+```{r}
+#| label: fig-time_trend
+#| fig-cap: Time trend of support percentage for Harris and Trump in the 2024 U.S. presidential election, showing a recent increase in Harris's support, surpassing Trump.
+#| echo: false
+#| warning: false
+#| message: false
+
+# Create the plot
+ggplot(data, aes(x = as.Date(end_date), y = pct, color = answer)) +
+  geom_point(alpha = 0.7) +
+  geom_smooth(method = "loess", span = 0.5, se = TRUE) +
+  scale_color_manual(values = c("Harris" = "lightblue", "Trump" = "darkgreen")) +
+  labs(title = "Trend of Support for Harris and Trump Over Time",
+       x = "End Date",
+       y = "Support Percentage",
+       color = "Candidate") +
+  theme_minimal() +
+  theme(legend.position = "right")
+
+```
+Figure (@fig-time_trend) shows the trend in support percentages (pct) for Harris and Trump from 2021 to 2024. Throughout most of this period, Trump maintained a slight lead, with an average support rate around 3% higher than Harris’s between August 2022 and June 2024. However, in recent months, Harris’s support surged significantly, overtaking Trump with a notable upward spike. Aside from this recent increase, both candidates' support rates generally remain close, showing no large differences except for the recent jump in Harris’s support.
+Interpretation
+The recent rise in Harris’s support suggests a shift in voter preference leading up to the 2024 election, potentially influenced by recent political events or changes in campaign strategy. The overall similarity in support rates indicates that the race remains competitive, with support fluctuating within a narrow range for both candidates. Harris’s recent surge, however, may reflect growing momentum, making it a key trend to monitor as the election approaches. This pattern also highlights the importance of temporal trends, as public opinion can shift markedly in the months before an election.
+
+### Forecasting and Prediction Intervals
+
+After fitting the model, we generate forecasts by calculating predicted probabilities for each candidate across polls. To assess forecast reliability, we use 95% prediction intervals for each candidate’s aggregated support, providing a range within which actual support levels are likely to fall. Additionally, posterior predictive checks allow us to compare model predictions against observed poll results, enhancing forecast robustness. This setup not only estimates the probability of support but also offers interpretable intervals that reflect uncertainty, making the model’s forecasts more reliable for understanding potential election outcomes.
+
+```{r}
+# Generate posterior predictions for each observation
+predicted_pct <- posterior_predict(BA_linear_model)
+
+# Calculate the mean prediction for each pollster
+data$predicted_pct <- rowMeans(t(predicted_pct))
+
+# Aggregate by pollster to get average predicted support per pollster
+pollster_aggregated <- data %>%
+  group_by(pollster, answer) %>%
+  summarise(avg_predicted_pct = mean(predicted_pct, na.rm = TRUE))
+
+# Aggregate overall support by candidate
+overall_support <- pollster_aggregated %>%
+  group_by(answer) %>%
+  summarise(overall_avg_support = mean(avg_predicted_pct, na.rm = TRUE))
+
+print(overall_support)
+
+
+
 ```
 
+
+```{r}
+# Generate posterior predictions for each observation
+predicted_probs <- posterior_predict(BA_logis_model)
+
+# Transpose and calculate the mean predicted probability for each observation
+data$predicted_prob <- rowMeans(t(predicted_probs))
+
+# Proceed with aggregation by pollster
+pollster_aggregated <- data %>%
+  group_by(pollster) %>%
+  summarise(avg_predicted_prob_harris = mean(predicted_prob[candidate_dummy == 1], na.rm = TRUE),
+            avg_predicted_prob_trump = mean(predicted_prob[candidate_dummy == 0], na.rm = TRUE))
+
+# Calculate overall support for each candidate
+overall_support <- pollster_aggregated %>%
+  summarise(overall_support_harris = mean(avg_predicted_prob_harris, na.rm = TRUE),
+            overall_support_trump = mean(avg_predicted_prob_trump, na.rm = TRUE))
+
+print(overall_support)
+
+
+```
+
+
+
+```{r}
+predicted_pct <- posterior_predict(BA_linear_model)
+
+# Calculate the mean and 95% prediction interval for each pollster
+data$predicted_pct <- rowMeans(t(predicted_pct))
+data$predicted_interval_lower <- apply(predicted_pct, 2, quantile, probs = 0.025)
+data$predicted_interval_upper <- apply(predicted_pct, 2, quantile, probs = 0.975)
+
+pollster_aggregated_linear <- data %>%
+  group_by(pollster, answer) %>%
+  summarise(avg_predicted_pct = mean(predicted_pct, na.rm = TRUE),
+            lower_95 = mean(predicted_interval_lower, na.rm = TRUE),
+            upper_95 = mean(predicted_interval_upper, na.rm = TRUE),
+            .groups = "drop")
+
+```
+
+
+```{r}
+predicted_probs <- posterior_predict(BA_logis_model)
+
+# Calculate the mean probability and 95% prediction interval for each pollster
+data$predicted_prob <- rowMeans(t(predicted_probs))
+data$predicted_prob_lower <- apply(predicted_probs, 2, quantile, probs = 0.025)
+data$predicted_prob_upper <- apply(predicted_probs, 2, quantile, probs = 0.975)
+
+pollster_aggregated_logistic <- data %>%
+  group_by(pollster, answer) %>%
+  summarise(avg_prob = mean(predicted_prob, na.rm = TRUE),
+            lower_95_prob = mean(predicted_prob_lower, na.rm = TRUE),
+            upper_95_prob = mean(predicted_prob_upper, na.rm = TRUE),
+            .groups = "drop")
+
+```
+
+
+
+```{r}
+# Aggregate by candidate for overall distribution
+overall_aggregated <- pollster_aggregated_linear %>%
+  group_by(answer) %>%
+  summarise(overall_avg = mean(avg_predicted_pct, na.rm = TRUE),
+            lower_95 = mean(lower_95, na.rm = TRUE),
+            upper_95 = mean(upper_95, na.rm = TRUE))
+
+# Visualization of overall support distribution
+ggplot(overall_aggregated, aes(x = answer, y = overall_avg, fill = answer)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  geom_errorbar(aes(ymin = lower_95, ymax = upper_95), width = 0.2) +
+  labs(title = "Overall Predicted Support with 95% Prediction Intervals",
+       x = "Candidate", y = "Average Predicted Support Percentage") +
+  theme_minimal()
+
+```
+
+
+
 **Conclusion**
-In conclusion, the multiple linear regression model explains 84.44% of the variability in candidate support, with an Adjusted R-squared of 0.8444. Key findings show that larger sample sizes slightly reduce support percentages, while party affiliation plays a significant role, with Green and Independent candidates receiving notably less support compared to Republicans. Both transparency score and poll quality score negatively affect support, suggesting more credible polls may report lower percentages. Despite a few outliers, the model is highly significant, providing valuable insights into factors influencing candidate support.
+
 
 # Discussion {#sec-discussion}
 
