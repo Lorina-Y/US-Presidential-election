@@ -7,7 +7,7 @@ author:
 thanks: "Code and data are available at: https://github.com/Lorina-Y/US-Presidential-election.git."
 date: today
 date-format: long
-abstract: "First sentence. Second sentence. Third sentence. Fourth sentence."
+abstract: "This paper forecasts the 2024 U.S. Presidential election by analyzing polling data on support for Kamala Harris and Donald Trump. Using Bayesian linear and logistic regression models, we examine the impact of poll characteristics like sample size and quality on support levels and predict each candidate’s winning probability. Our results show minimal influence from poll quality on support percentages but highlight a recent surge in Harris’s support, narrowing Trump’s previous lead. These findings provide insight into polling reliability and evolving voter sentiment as the election nears."
 format: pdf
 number-sections: true
 bibliography: references.bib
