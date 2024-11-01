@@ -11,42 +11,29 @@
 
 #### Workspace setup ####
 library(tidyverse)
-set.seed(853)
-
+library(dplyr)
 
 #### Simulate data ####
-# State names
-states <- c(
-  "New South Wales",
-  "Victoria",
-  "Queensland",
-  "South Australia",
-  "Western Australia",
-  "Tasmania",
-  "Northern Territory",
-  "Australian Capital Territory"
-)
+# Set seed for reproducibility
+set.seed(304)
 
-# Political parties
-parties <- c("Labor", "Liberal", "Greens", "National", "Other")
+# Simulate a dataset with 1000 observations
+answers <- c("Harris", "Trump")
+n <- 1000
+simulated_data <- data.frame(
+  sample_size = rpois(n, lambda = 1500),       # Sample size from a Poisson distribution
+  pollscore = rnorm(n, mean = 0, sd = 1),      # Poll quality score from a normal distribution
+  pct = rnorm(n, mean = 45, sd = 5),            # Support percentage around 45% with some variability
+  answer = sample(answers, n, replace = TRUE))
 
-# Create a dataset by randomly assigning states and parties to divisions
-analysis_data <- tibble(
-  division = paste("Division", 1:151),  # Add "Division" to make it a character
-  state = sample(
-    states,
-    size = 151,
-    replace = TRUE,
-    prob = c(0.25, 0.25, 0.15, 0.1, 0.1, 0.1, 0.025, 0.025) # Rough state population distribution
-  ),
-  party = sample(
-    parties,
-    size = 151,
-    replace = TRUE,
-    prob = c(0.40, 0.40, 0.05, 0.1, 0.05) # Rough party distribution
-  )
-)
+# Introduce a relationship between predictors and `pct` (linear relationship)
+simulated_data <- simulated_data %>%
+  mutate(pct = 40 + 0.01 * sample_size + 2 * pollscore + rnorm(n, 0, 3))
+
+# View the simulated data
+head(simulated_data)
+
 
 
 #### Save data ####
-write_csv(analysis_data, "data/00-simulated_data/simulated_data.csv")
+write_csv(simulated_data, "data/00-simulated_data/simulated_data.csv")

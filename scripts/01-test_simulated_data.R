@@ -26,46 +26,30 @@ if (exists("analysis_data")) {
 
 #### Test data ####
 
-# Check if the dataset has 151 rows
-if (nrow(analysis_data) == 151) {
-  message("Test Passed: The dataset has 151 rows.")
+# Check if the dataset has 1000 rows
+if (nrow(analysis_data) == 1000) {
+  message("Test Passed: The dataset has 1000 rows.")
 } else {
-  stop("Test Failed: The dataset does not have 151 rows.")
+  stop("Test Failed: The dataset does not have 1000 rows.")
 }
 
-# Check if the dataset has 3 columns
-if (ncol(analysis_data) == 3) {
-  message("Test Passed: The dataset has 3 columns.")
+# Check if the dataset has 4 columns
+if (ncol(analysis_data) == 4) {
+  message("Test Passed: The dataset has 4 columns.")
 } else {
-  stop("Test Failed: The dataset does not have 3 columns.")
+  stop("Test Failed: The dataset does not have 4 columns.")
 }
 
-# Check if all values in the 'division' column are unique
-if (n_distinct(analysis_data$division) == nrow(analysis_data)) {
-  message("Test Passed: All values in 'division' are unique.")
+
+# Check if the 'answer' column contains only 'Harris' and 'Trump"
+valid_answers <- c("Harris", "Trump")
+
+if (all(analysis_data$answer %in% valid_answers)) {
+  message("Test Passed: The 'answer' column contains only 'Harris' and 'Trump'.")
 } else {
-  stop("Test Failed: The 'division' column contains duplicate values.")
+  stop("Test Failed: The 'answer' column contains invalid candidates names.")
 }
 
-# Check if the 'state' column contains only valid Australian state names
-valid_states <- c("New South Wales", "Victoria", "Queensland", "South Australia", 
-                  "Western Australia", "Tasmania", "Northern Territory", 
-                  "Australian Capital Territory")
-
-if (all(analysis_data$state %in% valid_states)) {
-  message("Test Passed: The 'state' column contains only valid Australian state names.")
-} else {
-  stop("Test Failed: The 'state' column contains invalid state names.")
-}
-
-# Check if the 'party' column contains only valid party names
-valid_parties <- c("Labor", "Liberal", "Greens", "National", "Other")
-
-if (all(analysis_data$party %in% valid_parties)) {
-  message("Test Passed: The 'party' column contains only valid party names.")
-} else {
-  stop("Test Failed: The 'party' column contains invalid party names.")
-}
 
 # Check if there are any missing values in the dataset
 if (all(!is.na(analysis_data))) {
@@ -74,16 +58,17 @@ if (all(!is.na(analysis_data))) {
   stop("Test Failed: The dataset contains missing values.")
 }
 
-# Check if there are no empty strings in 'division', 'state', and 'party' columns
-if (all(analysis_data$division != "" & analysis_data$state != "" & analysis_data$party != "")) {
-  message("Test Passed: There are no empty strings in 'division', 'state', or 'party'.")
+# Check if there are no empty strings in 'answer' columns
+if (all(analysis_data$answer != "")) {
+  message("Test Passed: There are no empty strings in 'answer'.")
 } else {
-  stop("Test Failed: There are empty strings in one or more columns.")
+  stop("Test Failed: There are empty strings in answer columns.")
 }
 
-# Check if the 'party' column has at least two unique values
-if (n_distinct(analysis_data$party) >= 2) {
-  message("Test Passed: The 'party' column contains at least two unique values.")
+# Check if the 'answer' column has at least two unique values
+if (n_distinct(analysis_data$answer) >= 2) {
+  message("Test Passed: The 'answer' column contains at least two unique values.")
 } else {
-  stop("Test Failed: The 'party' column contains less than two unique values.")
+  stop("Test Failed: The 'answer' column contains less than two unique values.")
 }
+
