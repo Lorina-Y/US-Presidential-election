@@ -1,16 +1,13 @@
 #### Preamble ####
-# Purpose: Downloads and saves the data from [...UPDATE THIS...]
-# Author: Rohan Alexander [...UPDATE THIS...]
-# Date: 11 February 2023 [...UPDATE THIS...]
-# Contact: rohan.alexander@utoronto.ca [...UPDATE THIS...]
-# License: MIT
-# Pre-requisites: [...UPDATE THIS...]
-# Any other information needed? [...UPDATE THIS...]
-
+# Purpose: Downloads and saves the data from the website FiveThirtyEight
+# Author: Lorina Yang, Ruiying Li
+# Date: 4th November, 2024
+# Contact: hanq.yang@mail.utoronto.ca and ruiying.li@mail.utoronto.ca
+# License: N/A
+# Pre-requisites: N/A
 
 #### Workspace setup ####
 library(tidyverse)
-# [...UPDATE THIS...]
 
 #### Download data ####
 
@@ -27,10 +24,7 @@ raw_elections_data <-
 # it in case something happens or they move it.
 
 
-
-
 #### Save data ####
-# [...UPDATE THIS...]
-# change the_raw_data to whatever name you assigned when you downloaded it.
+# change the_raw_data to the name I assigned when I downloaded it.
 write_csv(raw_elections_data, "data/01-raw_data/president_polls.csv") 
          

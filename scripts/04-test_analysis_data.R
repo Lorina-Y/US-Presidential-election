@@ -1,18 +1,22 @@
 #### Preamble ####
-# Purpose: Tests... [...UPDATE THIS...]
-# Author: Rohan Alexander [...UPDATE THIS...]
-# Date: 26 September 2024 [...UPDATE THIS...]
-# Contact: rohan.alexander@utoronto.ca [...UPDATE THIS...]
-# License: MIT
-# Pre-requisites: [...UPDATE THIS...]
-# Any other information needed? [...UPDATE THIS...]
-
+# Purpose: Tests the structure and validity of the analysis polling results data set
+# Author: Lorina Yang, Ruiying Li
+# Date: 4th November, 2024
+# Contact: hanq.yang@mail.utoronto.ca and ruiying.li@mail.utoronto.ca
+# License: N/A
+# Pre-requisites: N/A
 
 #### Workspace setup ####
 library(tidyverse)
-
+library(testthat)
 
 analysis_data <- read_csv("data/02-analysis_data/analysis_data.csv")
+
+# Check if data is loaded and is a data frame
+test_that("Data loaded successfully", {
+  expect_true(exists("analysis_data"))
+  expect_true(is.data.frame(analysis_data))
+})
 
 # Test if the data was successfully loaded
 if (exists("analysis_data")) {
@@ -23,21 +27,36 @@ if (exists("analysis_data")) {
 
 
 #### Test data ####
+# Test for no missing values
+test_that("No missing values in the dataset", {
+  expect_true(all(!is.na(analysis_data)))
+})
 
-# Check if the dataset has 5942 rows
-if (nrow(analysis_data) == 5942) {
-  message("Test Passed: The dataset has 5942 rows.")
+# Check 'pct' is a numeric and falls between 0 and 100
+test_that("'pct' values are between 0 and 100", {
+  expect_true(all(analysis_data$pct >= 0 & analysis_data $pct <= 100))
+})
+
+# Check if the dataset has 7352 rows
+if (nrow(analysis_data) == 7352) {
+  message("Test Passed: The dataset has 7352 rows.")
 } else {
-  stop("Test Failed: The dataset does not have 5942 rows.")
+  stop("Test Failed: The dataset does not have 7352 rows.")
 }
 
-# Check if the dataset has 9 columns
-if (ncol(analysis_data) == 9) {
-  message("Test Passed: The dataset has 9 columns.")
+# Check if the dataset has 7 columns
+if (ncol(analysis_data) == 7) {
+  message("Test Passed: The dataset has 7 columns.")
 } else {
-  stop("Test Failed: The dataset does not have 9 columns.")
+  stop("Test Failed: The dataset does not have 7 columns.")
 }
 
+# Verify if 'sample_size' column has only positive values
+if (all(analysis_data$sample_size > 0)) {
+  message("Test Passed: The 'sample_size' column contains only positive values.")
+} else {
+  stop("Test Failed: The 'sample_size' column contains non-positive values.")
+}
 
 # Check if the 'answer' column contains only 'Harris' and 'Trump"
 valid_answers <- c("Harris", "Trump")

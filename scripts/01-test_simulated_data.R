@@ -1,14 +1,10 @@
 #### Preamble ####
-# Purpose: Tests the structure and validity of the simulated Australian 
-  #electoral divisions dataset.
-# Author: Rohan Alexander
-# Date: 26 September 2024
-# Contact: rohan.alexander@utoronto.ca
-# License: MIT
-# Pre-requisites: 
-  # - The `tidyverse` package must be installed and loaded
-  # - 00-simulate_data.R must have been run
-# Any other information needed? Make sure you are in the `starter_folder` rproj
+# Purpose: Tests the structure and validity of the simulated data
+# Author: Lorina Yang, Ruiying Li
+# Date: 4th November, 2024
+# Contact: hanq.yang@mail.utoronto.ca and ruiying.li@mail.utoronto.ca
+# License: N/A
+# Pre-requisites: N/A
 
 
 #### Workspace setup ####
@@ -26,6 +22,22 @@ if (exists("analysis_data")) {
 
 #### Test data ####
 
+# Verify if 'end_date' column contains only dates within the specified range
+start_date <- as.Date("2024-09-01")
+end_date <- as.Date("2024-10-28")
+if (all(analysis_data$end_date >= start_date & analysis_data$end_date <= end_date)) {
+  message("Test Passed: The 'end_date' column contains dates within the expected range.")
+} else {
+  stop("Test Failed: The 'end_date' column contains dates outside the expected range.")
+}
+
+# Verify if 'sample_size' column has only positive values
+if (all(analysis_data$sample_size > 0)) {
+  message("Test Passed: The 'sample_size' column contains only positive values.")
+} else {
+  stop("Test Failed: The 'sample_size' column contains non-positive values.")
+}
+
 # Check if the dataset has 1000 rows
 if (nrow(analysis_data) == 1000) {
   message("Test Passed: The dataset has 1000 rows.")
@@ -33,11 +45,27 @@ if (nrow(analysis_data) == 1000) {
   stop("Test Failed: The dataset does not have 1000 rows.")
 }
 
-# Check if the dataset has 4 columns
-if (ncol(analysis_data) == 4) {
-  message("Test Passed: The dataset has 4 columns.")
+# Check if the dataset has 7 columns
+if (ncol(analysis_data) == 7) {
+  message("Test Passed: The dataset has 7 columns.")
 } else {
-  stop("Test Failed: The dataset does not have 4 columns.")
+  stop("Test Failed: The dataset does not have 7 columns.")
+}
+
+
+# Check if 'pct' column values fall within a realistic range (e.g., 0 to 100%)
+if (all(analysis_data$pct >= 0 & analysis_data$pct <= 100)) {
+  message("Test Passed: The 'pct' column values are within a realistic range.")
+} else {
+  stop("Test Failed: The 'pct' column has values outside the realistic range (0-100).")
+}
+
+# Check if 'pollster' column has only valid pollster names
+valid_pollsters <- c("YouGov", "TIPP", "Leger")
+if (all(analysis_data$pollster %in% valid_pollsters)) {
+  message("Test Passed: The 'pollster' column contains only valid pollster names.")
+} else {
+  stop("Test Failed: The 'pollster' column contains invalid pollster names.")
 }
 
 
@@ -71,4 +99,6 @@ if (n_distinct(analysis_data$answer) >= 2) {
 } else {
   stop("Test Failed: The 'answer' column contains less than two unique values.")
 }
+
+
 
