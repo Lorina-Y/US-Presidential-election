@@ -1,13 +1,13 @@
 ---
-title: "Forecasting the 2024 US Presidential Election: A Poll-of-Polls Approach to Predict the Outcome"
-subtitle: "Utilizing Poll Aggregation and Statistical Modeling to Project a Clear Path for the Presidential Race"
+title: "Forecasting the 2024 U.S. Presidential Election: A Poll Aggregation Approach to Predict Candidate Support"
+subtitle: "Analyzing Poll Characteristics and Voter Sentiment to predict the Likelihood of Victory for Kamala Harris and Donald Trump"
 author: 
   - Ruiying Li
   - Lorina Yang
 thanks: "Code and data are available at: https://github.com/Lorina-Y/US-Presidential-election.git."
 date: today
 date-format: long
-abstract: "This paper forecasts the 2024 U.S. Presidential election by analyzing polling data on support for Kamala Harris and Donald Trump. Using Bayesian linear and logistic regression models, we examine the impact of poll characteristics like sample size and quality on support levels and predict each candidate’s winning probability. Our results show minimal influence from poll quality on support percentages but highlight a recent surge in Harris’s support, narrowing Trump’s previous lead. These findings provide insight into polling reliability and evolving voter sentiment as the election nears."
+abstract: "This paper forecasts the 2024 U.S. Presidential election by analyzing polling data on support for Kamala Harris and Donald Trump. Using statistical models, we examine the impact of poll characteristics like sample size and quality on support levels and predict each candidate’s winning probability. Our results show minimal influence from poll quality on support percentages, and small difference in support rate between Harris and Trump, but highlight a recent surge in Harris’s support, narrowing Trump’s previous lead. These findings provide explanation about polling reliability and voter sentiment as the election nears."
 format: pdf
 number-sections: true
 bibliography: references.bib
@@ -24,6 +24,7 @@ library(rstanarm)
 library(here)
 library(modelsummary)
 library(patchwork)
+library(kableExtra)
 
 data <-
   read_csv(
@@ -38,21 +39,19 @@ data <-
 The ongoing U.S. presidential election is a major focus in the media, finance, and politics, making it essential to provide reliable forecasts and understand the factors influencing varying levels of candidate support. This study utilizes Bayesian linear and logistic regression models to analyze and predict support for Kamala Harris and Donald Trump, integrating poll-level data on support percentages, poll quality, sample size, and time trends.
 
 **Aim**  
-Our primary objectives are to examine how poll characteristics—sample size and quality—influence reported support percentages and to track shifts in support over time for Harris and Trump. The linear regression model evaluates these poll factors, assessing their impact on support stability. Additionally, time-trend analysis identifies evolving voter sentiment, capturing a recent change in support rate for candidates. And second, to forecast aggregate support rates for Harris and Trump, facilitating comparison. We use the Bayesian linear regression model to estimate overall support rate aggregate by cadidates, a logistic model complements this by estimating each candidate’s probability of success directly, adding a probabilistic perspective.
+Our first objectives are to examine how poll characteristics—sample size and quality—influence reported support percentages and to track shifts in support over time for Harris and Trump. And second, to forecast aggregate support rates for Harris and Trump, We use the Bayesian linear regression model to estimate overall support rate, a logistic model complements this by estimating each candidate’s probability of success directly, adding a probabilistic perspective.
 
 **Estimand**  
-The primary estimands include the impact of poll characteristics on support percentage and each candidate's probability of winning. The linear model provides insights into how polling factors influence reported support.
-For the Bayesian forecasting component, The key estimand in this analysis is the probability of support for Harris versus Trump for each poll, aggregated to estimate an overall probability of each candidate’s support. This probability is informed by predictors including poll-specific support percentage (pct), poll quality (pollscore) and sample size, providing a detailed estimate of each candidate’s likelihood of winning.
+The estimands include the impact of poll characteristics on support percentage and each candidate's probability of winning. The linear model provides insights into how polling factors influence reported support. For the Bayesian forecasting component, The key estimand in this analysis is the probability of support for Harris versus Trump for each poll, aggregated to estimate an overall probability of each candidate’s support. This probability is informed by predictors including poll-specific support percentage (pct), poll quality (pollscore) and sample size, providing a detailed estimate of each candidate’s likelihood of winning.
 
 **Results**  
-The analysis shows that sample size and poll quality have minimal effects on support levels, supporting the reliability of aggregated poll data. The linear model found near-identical support levels for Harris and Trump (44.75% and 44.76%, respectively), indicating a close race. The logistic model, however, gave Harris a slight edge with a support probability of 0.2925 versus Trump’s 0.2451, though wide prediction intervals suggest caution. Additionally, a recent time-trend analysis reveals Harris's support has surged past Trump’s, hinting at a potential momentum shift. This combination of analyses offers a nuanced view of the race, balancing poll stability with the evolving dynamics of voter sentiment.
+The analysis shows that sample size and poll quality have minimal effects on support levels. The linear model found near-identical support levels for Harris and Trump (44.75% and 44.76%, respectively), indicating a close race. The logistic model, however, gave Harris a slight edge with a support probability of 0.33 versus Trump’s 0.282, though wide prediction intervals suggest caution. Additionally, a recent time-trend analysis reveals Harris's support has surged past Trump’s, hinting at a potential momentum shift. This combination of analyses offers a nuanced view of the race, balancing poll stability with the evolving dynamics of voter sentiment.
 
-## Software and packages used
-We use the statistical programming language R [@citeR] and the following packages: tidyverse [@tidyverse], dplyr [@dplyr], readr [@readr], ggplot2 [@ggplot2], janitor [@janitor], lubridate [@lubridate], broom [@broom], modelsummary [@modelsummary], rstanarm [@rstanarm], here [@here], bayesplot[@bayesplot], patchwork[@patchwork].
+## Software, data and packages used
+We use the statistical programming language R [@citeR], data from [@fivethirtyeight], and following packages: tidyverse [@tidyverse], dplyr [@dplyr], readr [@readr], ggplot2 [@ggplot2], janitor [@janitor], lubridate [@lubridate], broom [@broom], modelsummary [@modelsummary], rstanarm [@rstanarm], here [@here], bayesplot[@bayesplot], patchwork[@patchwork], kableExtra [@kableExtra].
 
 ## Paper Structure
-The remainder of this paper follows a structure @sec-data,@sec-model about linear regression model and logistic model,@sec-result,@sec-discussion,@sec-conclusion, @sec-appendix1 about pollster methodology,@sec-appendix2  about our methodology on survey.
-
+The remainder of this paper follows a structure @sec-data,@sec-model about linear regression model and logistic model,@sec-result,@sec-discussion,@sec-conclusion, @sec-appendix1 about pollster methodology,@sec-appendix2 about our methodology on survey, @sec-appendixA about predictors variables summary statistics, @sec-appendixB about model justification.
 
 
 # Data {#sec-data}
@@ -66,28 +65,16 @@ These variables represent the underlying polling practices and voter sentiment, 
 
 ## Response variables
 In our analysis, we use two response variables to capture different aspects of candidate support. For the linear model, the response variable is `pct`, representing the percentage of respondents indicating support for each candidate in individual polls. This continuous variable allows us to explore how factors like poll quality (`pollscore`) and sample size influence reported support percentages. 
-For the logistic model, we use `candidate_dummy`, a binary variable coded as `1` for Harris and `0` for Trump. This binary outcome enables us to estimate the probability of support for each candidate, providing a probabilistic forecast of each candidate’s chance of winning based on aggregated poll characteristics.
-```{r}
-#| label: fig-pct
-#| fig-cap: Average Percentage Support(pct) for Harris and Trump
-#| echo: false
-#| warning: false
-#| message: false
-ggplot(data, aes(x = answer, y = pct, fill = answer)) +
-  geom_bar(stat = "summary", fun = "mean") +
-  labs(title = "Average Percentage Support by Candidate", x = "Candidate", y = "Average Support (%)") +
-  theme_minimal()
-
-
-
-```
+For the logistic model, we use `candidate_dummy` which is constructed by assign binary variable coded as `1` for Harris and `0` for Trump based on 'answer' column. This binary outcome enables us to estimate the probability of support for each candidate, providing a probabilistic forecast of each candidate’s chance of winning based on aggregated poll characteristics. 
 
 ## Predictor variables
 The model incorporates a set of key predictor variables aimed at refining forecast accuracy by capturing unique attributes of each poll. 
 **Average Support (`pct`)** is a predictor in the second Bayesian logistic model, it provides the support percentage reported by each poll for the candidate in question, serving as a direct indicator of voter preference. 
 **Poll Quality (`pollscore`)** reflects the reliability of each poll based on historical accuracy and transparency, with higher scores indicating greater reliability.
 **Sample Size (`sample_size`)** accounts for the number of respondents per poll, controlling for the variability that smaller samples may introduce.
-Together, these predictors enable a nuanced analysis of support that accounts for each poll's quality, methodology, and respondent base, leading to a robust and interpretable model of voter preference.
+**End_date** it represent the date the poll end which reflect the recency of the polling data, record the latest time of publication of polling data.
+
+Together, these variables enable analysis of support that accounts for each poll's quality, methodology, and respondent base, give interpretable model of voter preference.The predictor variables summary statistics table is shown in @sec-appendixA.
 
 
 
@@ -98,17 +85,13 @@ This analysis employs a Bayesian linear regression model and a Bayesian logistic
 The linear model estimates how poll characteristics like sample size and poll quality influence reported support percentages (pct), capturing trends over time. Meanwhile, the logistic model provides a probabilistic forecast, estimating each candidate's likelihood of winning based on aggregated support metrics. Both models incorporate Bayesian inference, allowing us to account for variability and uncertainty in polling data and offering a robust election forecast.
 
 ## Model selection
-We selected the Bayesian linear and logistic models based on their capacity to integrate prior information and address different aspects of our research objectives. The linear model was chosen for its ability to assess predictor effects on support percentages (pct), making it ideal for understanding poll characteristics' impact on support rates. The Bayesian logistic model was selected for its suitability in estimating support probabilities, capturing the competition between candidates. Model fit and Bayesian methods was evaluated use posterior predictive checks, also allow for rigorous model diagnostics, validating the models against observed polling data and enhancing forecast reliability.
+We selected the Bayesian linear and logistic models based on their capacity to integrate prior information and address different aspects of our research objectives. The linear model was chosen for its ability to assess predictor effects on support percentages (pct), making it ideal for understanding poll characteristics' impact on support rates. The Bayesian logistic model was selected for its suitability in estimating support probabilities, capturing the competition between candidates. Model fit and Bayesian methods was evaluated use posterior predictive checks, allow for model diagnostics, validating the models against observed polling data and enhancing forecast reliability.
 
 ## Model set-up
-
 ### Bayesian linear model
-In the Bayesian linear regression model, the response variable 'pct' represents the percentage of respondents supporting each candidate in individual polls.
-This model can be express as below, In the Bayesian linear regression model, the outcome variable, `pct`, represents the percentage of respondents supporting each candidate in individual polls. This model is expressed as below, where Beta_0 is the intercept, Beta_1 and Beta_2 are coefficients for sample size and poll quality (pollscore), respectively, and epsilon_i represents the error term, capturing random variability in support percentages.
+In the Bayesian linear regression model, the outcome variable, `pct`, represents the percentage of respondents supporting each candidate in individual polls. This model is expressed as below, where Beta_0 is the intercept, Beta_1 and Beta_2 are coefficients for sample size and poll quality (pollscore), respectively, and epsilon_i represents the error term, capturing random variability in support percentages.
 
 $$ \mathrm{pct}_i = \beta_0 + \beta_1 \cdot \mathrm{sample\_size}_i + \beta_2 \cdot \mathrm{pollscore}_i + \epsilon_i $$
-
-
 
 ```{r}
 #| include: false
@@ -136,11 +119,10 @@ saveRDS(
 ```
 
 
-
 ### Bayesian logistic model
-In the Bayesian logistic regression model, the outcome variable is "candidate_dummy", a binary indicator of support for each candidate, where `1` represents Harris and `0` represents Trump. Predictor variables include **support percentage (`pct`)**, **poll quality (`pollscore`)**, **sample size (`sample_size`)**, each representing critical aspects of poll characteristics that impact voter support. The model is specified as follows:
+In the Bayesian logistic regression model, the response variable is "candidate_dummy", a binary indicator of support for each candidate, where `1` represents Harris and `0` represents Trump. Predictor variables include **support percentage (`pct`)**, **poll quality (`pollscore`)**, **sample size (`sample_size`)**, each representing critical aspects of poll characteristics that impact voter support. The model is specified as follows:
 
-Define y_i as the political preference of the respondent and equal to 1 if Biden and 0 if Trump. Then each Beta_i coefficient measures the effect of the corresponding predictor on the log-odds of 
+Define y_i as the political preference of the respondent and equal to 1 if 'Harris' and 0 if 'Trump'. Then each Beta_i coefficient measures the effect of the corresponding predictor on the log-odds of 
 $$ \log(\frac{P(y_i = 1)}{1 - P(y_i = 1)}) = \beta_0 + \beta_1 \cdot \mathrm{pct}_i + \beta_2 \cdot \mathrm{sample\_size}_i + \beta_3 \cdot \mathrm{pollscore}_i + \epsilon_i $$
 
 
@@ -179,7 +161,7 @@ We run the model in R [@citeR].
 
 ### Bayesian prior
 In our Bayesian framework, priors are set for each model coefficient based on historical data and reasonable assumptions about each predictor’s influence.
-In the Bayesian linear model, The prior for intercept of pct for Harries and Trump is set as 'Normal(45,8)", by historical data, the mean support rate should be around 45, and a variance of 8 yield to great flexibility.
+In the Bayesian linear model, The prior for intercept of pct for Harries and Trump is set as 'Normal(45,10)", by historical data, the mean support rate should be around 45, and a variance of 10 yield to great flexibility.
 In the Bayesian logistic model, a prior for intercept of dummy variable "Candidate_dummy" is set as 'Normal(0, 5)', assumes that baseline support is close to evenly split but allows the data to drive the estimate without excessively constraining it to initial assumptions, and improve flexibility.
 For both 2 model, we chose "Normal(0,2.5)" as the prior distribution for each predictor. This prior centering around zero (implying no effect) but with a standard deviation of 2.5, allowing flexibility to capture both small and moderate effects without imposing strong assumptions. 
 This choice reflects a balance between letting the data primarily drive coefficient estimates and acknowledging some prior uncertainty. 
@@ -197,7 +179,7 @@ Using Markov Chain Monte Carlo (MCMC) sampling, the model estimates posterior di
 \begin{align*}
 y_i | \mu_i &\sim \mathrm{Normal}(\pi_i) \\
 \mathrm{logit}(\pi_i) &= \beta_0 + \beta_1 \cdot \mathrm{pct}_i + \beta_2 \cdot \mathrm{sample\_size}_i + \beta_3 \cdot \mathrm{pollscore}_i \\
-\beta_0 &\sim \mathrm{Normal}(45, 10) \\
+\beta_0 &\sim \mathrm{Normal}(0, 5) \\
 \beta_1 &\sim \mathrm{Normal}(0, 2.5) \\
 \beta_2 &\sim \mathrm{Normal}(0, 2.5) \\
 \beta_3 &\sim \mathrm{Normal}(0, 2.5)
@@ -207,10 +189,385 @@ y_i | \mu_i &\sim \mathrm{Normal}(\pi_i) \\
 
 
 ## Model justification
-Fitness of our Bayesian linear and logistic regression models are examine by the pp_check() function, which use for posterior predictive checks, allowing us to visually assess model fit by comparing observed data to simulated data from the posterior distribution. The (@fig-check_liner) and (@fig-check_logistic) show that the two model fit well. And we also checking the convergence of the MCMC algorithm of the Linear regression model(@fig-check_MCMC). This step helps validate model assumptions and detect any potential misfit.
+Fitness of our Bayesian linear and logistic regression models are examine by the pp_check() function, which use for posterior predictive checks, allowing us to visually assess model fit by comparing observed data to simulated data from the posterior distribution. The model justification is included in @sec-appendixB, the (@fig-check_liner) and (@fig-check_logistic) show that the two model fit well. And we also checking the convergence of the MCMC algorithm of the Linear regression model(@fig-check_mcmc). This step helps validate model assumptions and detect any potential misfit. 
 
 However, our approach has limitations. We assume that polling errors are normally distributed and that predictors like sample size and poll quality have a linear impact on support rates. This may overlook nonlinear effects or unobserved confounders, such as regional bias or demographic shifts. Additionally, the models assume independence across polls, potentially ignoring correlations from repeated polling by the same pollster or temporal trends. These limitations highlight areas for refinement, such as including more predictors or accounting for pollster-specific effects, to enhance forecasting accuracy.
 
+\newpage
+
+
+# Results {#sec-result}
+The Bayesian linear regression model provides insights into how poll characteristics, specifically sample_size and pollscore, influence reported support percentage (pct). The posterior mean for sample_size is close to zero with a 95% credible interval that centers around zero, indicating that sample size has no significant impact on support percentage in this model. The coefficient for pollscore has a mean of -0.8 with a 95% credible interval from -1.1 to -0.5, suggesting a small but consistent negative effect. This means that as poll quality increases (higher pollscore), reported support slightly decreases, though this effect is modest.The (@fig-mcmc) MCMC areas plot provides a visualization of the 95% credible intervals for the coefficients in our Bayesian linear regression model. 
+
+```{r}
+#| label: fig-mcmc
+#| fig-cap: 95% CI for Coefficients of sample_size, pollescore in linear regression model-a MCMC areas plot
+#| echo: false
+#| warning: false
+#| message: false
+
+library(bayesplot)
+
+# Extract posterior draws for each coefficient
+posterior_draws <- as.data.frame(as.matrix(BA_linear_model))
+
+# Plot credible intervals for each coefficient
+mcmc_areas(posterior_draws, 
+           pars = c("sample_size", "pollscore"),
+           prob = 0.95) + 
+  labs(title = "95% Credible Intervals for Coefficients",
+       x = "Coefficient Value",
+       y = "Predictors") +
+  theme_minimal()
+```
+
+```{r}
+#| label: fig-time_trend
+#| fig-cap: Time trend of support percentage for Harris and Trump in the 2024 U.S. presidential election, showing a recent increase in Harris's support, surpassing Trump.
+#| echo: false
+#| warning: false
+#| message: false
+
+# Create the plot
+ggplot(data, aes(x = as.Date(end_date), y = pct, color = answer)) +
+  geom_point(alpha = 0.7) +
+  geom_smooth(method = "loess", span = 0.5, se = TRUE) +
+  scale_color_manual(values = c("Harris" = "lightblue", "Trump" = "darkgreen")) +
+  labs(title = "Trend of Support for Harris and Trump Over Time",
+       x = "End Date",
+       y = "Support Percentage",
+       color = "Candidate") +
+  theme_minimal() +
+  theme(legend.position = "right")
+
+```
+Figure (@fig-time_trend) shows the trend in support percentages (pct) for Harris and Trump from 2021 to 2024. Throughout most of this period, Trump maintained a slight lead, with an average support rate around 3% higher than Harris’s between August 2022 and June 2024. However, in recent months, Harris’s support surged significantly, overtaking Trump with a notable upward spike. Aside from this recent increase, both candidates' support rates generally remain close, showing no large differences except for the recent jump in Harris’s support.
+The recent rise in Harris’s support suggests a shift in voter preference leading up to the 2024 election, potentially influenced by recent political events or changes in campaign strategy. The overall similarity in support rates indicates that the race remains competitive, with support fluctuating within a narrow range for both candidates. Harris’s recent surge, however, may reflect growing momentum, making it a key trend to monitor as the election approaches. This pattern also highlights the importance of temporal trends, as public opinion can shift markedly in the weeks before an election.
+
+## Forecasting and Prediction Intervals
+After fitting the model, we generate forecasts by calculating predicted probabilities for each candidate across polls. To assess forecast reliability, we use 95% prediction intervals for each candidate’s aggregated support, providing a range within which actual support levels are likely to fall. Additionally, posterior predictive checks allow us to compare model predictions against observed poll results. This setup not only estimates the probability of support but also offers interpretable intervals that reflect uncertainty, making the model’s forecasts more reliable for understanding potential election outcomes.
+
+```{r}
+#| include: false
+#| warning: false
+#| message: false
+#Aggregate linear Model Predictions by Candidate
+
+# Calculate posterior predictions for the linear model
+predicted_pct <- posterior_predict(BA_linear_model)
+
+# Calculate mean predictions and 95% prediction intervals for each poll
+data$predicted_pct <- rowMeans(t(predicted_pct))
+data$predicted_pct_lower <- apply(predicted_pct, 2, quantile, probs = 0.025)
+data$predicted_pct_upper <- apply(predicted_pct, 2, quantile, probs = 0.975)
+
+# Aggregate support percentage predictions by candidate
+pollster_aggregated_linear <- data %>%
+  group_by(answer) %>%
+  summarise(avg_predicted_pct = mean(predicted_pct, na.rm = TRUE),
+            lower_95_pct = mean(predicted_pct_lower, na.rm = TRUE),
+            upper_95_pct = mean(predicted_pct_upper, na.rm = TRUE))
+pollster_aggregated_linear
+
+```
+
+
+```{r}
+#| label: fig-predict_pct
+#| fig-cap:  Aggregate predicted support percentages for Harris and Trump with 95% prediction intervals, illustrating the estimated support levels and associated uncertainty for each candidate
+#| echo: false
+#| warning: false
+#| message: false
+# Visualization for Linear Model Predictions (Support Percentage)
+
+ggplot(pollster_aggregated_linear, aes(x = answer, y = avg_predicted_pct, fill = answer)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  geom_errorbar(aes(ymin = lower_95_pct, ymax = upper_95_pct), width = 0.2) +
+  labs(title = "Aggregate Support Percentage with 95% Prediction Intervals",
+       x = "Candidate", y = "Predicted Support Percentage") +
+  theme_minimal() +
+  scale_fill_manual(values = c("Harris" = "darkorange", "Trump" = "navyblue"))
+
+```
+
+According to (@fig-predict_pct), for the linear regression model, the average predicted support percentage for Harris is 44.75% with a 95% prediction interval from 35.41% to 54.10%, while Trump’s average predicted support percentage is 44.76%, with a similar 95% interval from 35.42% to 54.11%.
+These values reflect the average level of support that each candidate garners across polls, without translating this support directly into a probability of winning. Both candidates show nearly identical support percentages (with Trump slightly higher by only 0.01%), indicating that support levels are virtually tied.
+This model provides insight into the aggregate support each candidate has across polls, rather than directly predicting a winner. It suggests stability in support levels and implies that neither candidate has a clear advantage in overall support percentage, highlighting a competitive election landscape.
+
+
+
+```{r}
+#| include: false
+#| warning: false
+#| message: false
+
+# Aggregate Logistic Model Predictions by Candidate
+
+# Calculate posterior predictions for the logistic model
+predicted_probs <- posterior_predict(BA_logis_model)
+
+# Calculate mean predicted probabilities and 95% prediction intervals
+data$predicted_prob <- rowMeans(t(predicted_probs))
+data$predicted_prob_lower <- apply(predicted_probs, 2, quantile, probs = 0.025)
+data$predicted_prob_upper <- apply(predicted_probs, 2, quantile, probs = 0.975)
+
+# Aggregate probability predictions by candidate
+pollster_aggregated_logistic <- data %>%
+  group_by(answer) %>%
+  summarise(avg_prob = mean(predicted_prob, na.rm = TRUE),
+            lower_95_prob = mean(predicted_prob_lower, na.rm = TRUE),
+            upper_95_prob = mean(predicted_prob_upper, na.rm = TRUE))
+pollster_aggregated_logistic
+```
+
+
+```{r}
+#| label: fig-predict_support
+#| fig-cap: Aggregate predicted probabilities of support for Harris and Trump with 95% prediction intervals, reflecting the estimated likelihood of support for each candidate and the associated uncertainty in the logistic model
+#| echo: false
+#| warning: false
+#| message: false
+# Visualization for Logistic Model Predictions (Probability of Support)
+ggplot(pollster_aggregated_logistic, aes(x = answer, y = avg_prob, fill = answer)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  geom_errorbar(aes(ymin = lower_95_prob, ymax = upper_95_prob), width = 0.2) +
+  labs(title = "Predicted Probability of Support with 95% Prediction Intervals",
+       x = "Candidate", y = "Predicted Probability") +
+  theme_minimal() +
+  scale_fill_manual(values = c("Harris" = "lightcoral", "Trump" = "lightblue"))
+```
+
+According to (@fig-predict_support).The Logistic Regression Model with Response "candidate_dummy" yields average predicted probabilities of support for each candidate. Harris has an average predicted probability of support at 0.33, with a 95% prediction interval spanning from 0 to 1, while Trump has an average probability of 0.282, with a 95% interval from 0 to 0.999.
+The probabilities from this model are indicative of the likelihood of each candidate receiving support in a head-to-head comparison. The slightly higher probability for Harris (0.33 vs. 0.282) suggests that she has a marginally stronger likelihood of support. However, the wide prediction intervals (spanning almost the full probability range for both candidates) reflect high uncertainty in the forecasts, indicating that both candidates are nearly equally likely to receive support within the observed data variability.
+Given the high uncertainty captured in the intervals, the model does not strongly favor one candidate as the definitive winner. Instead, it highlights that support is closely matched, with Harris having a slight edge.
+
+# Discussion {#sec-discussion}
+
+## Summary of Key Findings{#sec-first-point}
+In this study, we applied Bayesian linear and logistic regression models to forecast the likely outcome of the 2024 U.S. presidential election between Kamala Harris and Donald Trump. Using poll-level data that includes support percentages, sample sizes, and poll quality scores, we aimed to capture a detailed picture of voter preferences. The Bayesian linear regression model examined how poll characteristics impact reported support percentages, providing insight into polling data reliability and potential biases. The Bayesian logistic regression model then estimated each candidate’s probability of winning in head-to-head scenarios, allowing us to explore relative candidate advantage based on voter sentiment. Together, these models provide complementary perspectives on support trends and probabilities, enhancing the robustness of our election forecast.
+
+## Bayesian Linear Regression Model Insights (Average Support Levels)
+The linear model, which calculates average support percentages, found near-equal levels of support for Harris and Trump, with Harris at 44.75% and Trump at 44.76%. This model suggests that, across polls, the aggregate level of support for each candidate is almost identical, indicating a highly competitive race without a clear front runner. These results underscore the stability of overall support levels across various polls and suggest that differences in poll sample sizes and quality scores do not significantly impact the aggregate support. The linear model thus emphasizes the close nature of this election, showing no substantial difference between the candidates in terms of general support. However, while useful for understanding stability in public sentiment, this model does not account for head-to-head dynamics and may miss nuances in individual voter preference shifts.
+
+## Bayesian Logistic Model Insights (Probability of Support)
+The logistic model provides a more direct assessment of each candidate's probability of winning by estimating the likelihood of support for Harris over Trump in binary terms. In this model, Harris holds a slight edge with an average probability of 0.33, compared to Trump’s 0.282. This difference, though small, hints at a slight advantage for Harris in terms of head-to-head support likelihood. However, the wide prediction intervals (0 to 1 for Harris and 0 to 0.999 for Trump) indicate considerable uncertainty, highlighting the limitations of polling data and forecasting in capturing true electoral dynamics. This uncertainty suggests that while Harris may have a marginal lead, the probabilities are close enough that either candidate could still prevail. The logistic model, therefore, supports the notion of a competitive race but suggests that Harris may have a slight edge, albeit with caution due to the high level of forecast variability.
+
+## Time Trend Analysis and Recent Shift
+The time-trend analysis provides further context for interpreting these findings. Historically, Trump maintained a slight lead over Harris from mid-2022 to mid-2024, indicating a consistent edge in public support during that period. However, recent polling data reveals a significant rise in Harris’s support, allowing her to overtake Trump in the months leading up to the election. This late increase in support for Harris suggests a shift in momentum that could influence the final outcome. When viewed alongside the logistic model’s slight probability advantage for Harris, this recent uptick implies that she may be gaining favor as the election nears. The time trend’s emphasis on late-campaign dynamics supports the view that Harris has potential momentum, though this trend remains tentative and subject to change as additional data emerge.
+
+## Limitations and Model Assumptions
+Despite the strengths of this approach, several limitations should be acknowledged. First, while Bayesian models offer flexibility and the ability to incorporate prior information, the priors chosen may influence the results. We used relatively uninformative priors to minimize bias, but these selections inherently shape the posterior distributions, potentially affecting probability estimates. Another limitation lies in the data source: the reliance on publicly available polling data from various organizations introduces heterogeneity in sampling methods and question wording, which may contribute to variability that is difficult to account for fully in the models. Additionally, while we used posterior predictive checks to validate model fit, the wide intervals in the logistic model suggest high uncertainty, reflecting the challenge of forecasting elections with inherently noisy data.
+
+The logistic model, in particular, assumes that support for each candidate can be predicted based on a binary outcome, reducing voter preferences to a simple choice between Harris and Trump. This assumption may overlook the complexity of voter behavior and preferences, especially in a multi-dimensional electoral landscape. The linear model, while useful for understanding aggregate trends, may not fully capture the probability of individual voters’ support. These model assumptions, though reasonable for a first-pass analysis, indicate that our forecasts should be interpreted with caution.
+
+## Future Directions
+Looking ahead, there are several avenues for enhancing this analysis. One potential improvement is to refine the prior distributions for each model based on historical election data, which could provide more informative predictions. Additionally, integrating demographic data, such as voter age, education level, or geographic region, could enrich the models by capturing the diversity within voter bases, making forecasts more reflective of real-world voting patterns. Future work could also incorporate temporal weighting, giving more recent polls higher influence, which may help capture late shifts in sentiment more accurately.
+To address the limitations of binary support estimates, future studies could adopt a multinomial or ordinal approach, capturing a range of preferences rather than reducing support to a binary outcome. This would better reflect the complex decision-making process of voters and allow for the inclusion of third-party candidates if applicable. 
+\newpage
+
+# Conclusion {#sec-conclusion}
+This study provides an analysis of the 2024 U.S. presidential election polling data, examining how poll characteristics—specifically sample size and poll quality—impact reported support percentages and employing Bayesian regression models to forecast the likely winner between Kamala Harris and Donald Trump. By exploring each of these dimensions, we gain a multifaceted view of voter sentiment, poll reliability, and support trends over time. Together, these analyses contribute to a more robust understanding of how polling data can be interpreted in forecasting election outcomes.
+
+Firstly, our analysis of poll characteristics revealed that sample size and poll quality had minimal impact on reported support levels. The Bayesian linear regression model showed only a slight negative association between poll quality and support, with support percentages decreasing marginally as quality increased. The relationship between sample size and support was nearly flat, indicating that variations in sample size did not meaningfully shift support levels. These findings highlight the robustness of aggregated poll data: methodological differences across polls introduce only minor variability, suggesting that aggregated polling data can reliably capture underlying voter sentiment. This insight reinforces the validity of using a “poll-of-polls” approach, where combining multiple polls mitigates the effects of individual poll characteristics and enhances the stability of support estimates.
+
+Secondly, our Bayesian linear and logistic regression models offered complementary perspectives on candidate support. The linear model, which analyzed average support levels, showed that both Harris and Trump have near-identical levels of aggregated support, with no candidate having a significant edge based on overall support percentages. The logistic model, however, provided a probability-based forecast of each candidate’s likelihood of winning in head-to-head scenarios. Here, Harris held a slight but uncertain lead over Trump, while this probability difference is small, it suggests that, in competitive settings, Harris may have a slight advantage, though the wide prediction intervals caution against overconfidence in this result. The combination of these models underscores the nature of the race, with aggregate support levels indicating a tie but probability outcomes hinting at a possible edge for Harris.
+
+Finally, the time-trend analysis added depth to these findings by revealing a significant shift in candidate support over the past two years. From mid-2022 until mid-2024, Trump consistently led Harris by a small margin. However, recent months have seen a substantial increase in Harris’s support, surpassing Trump for the first time. This upward trend for Harris may reflect shifting voter dynamics or emerging factors influencing public opinion. When combined with the logistic model’s slight probability advantage for Harris, this recent increase in support suggests that Harris may be gaining momentum as the election nears. 
+
+In conclusion, this study highlights the strengths and limitations of using polling data to forecast election outcomes. By demonstrating that poll characteristics have minimal impact on aggregated support levels, validating the slight yet uncertain edge Harris may have, and revealing the evolving nature of voter sentiment. This multidimensional approach suggests that while close, Harris’s recent momentum could shape the final outcome. Future studies may further explore how temporal shifts impact electoral probabilities, especially in competitive races, to improve the reliability of predictive models in capturing late-stage changes in public sentiment.
+\newpage
+
+\appendix
+
+# Appendix1:Analysis of Trafalgar Group’s Polling Methodology {#sec-appendix1}
+
+## Overview of Trafalgar group
+
+Trafalgar Group is known for its distinct and often unconventional approach to polling, which has sometimes yielded unique insights, their methodologies are mulitple including IVR, live phone, text, online panel and email.
+Especially during U.S. election cycles, Trafalgar has built a reputation for accurate predictions in key elections by adopting methodologies that differ from those of many other pollsters. 
+In particular, their methods aim to capture the opinions of what they term the “shy” voter demographic—respondents who may hesitate to disclose their preferences through traditional survey methods.
+
+## Methodology Analysis
+### Population, Frame and Sample
+**Population:**
+Trafalgar Group’s polling generally targets registered and likely voters in the United States. Their goal is to capture the perspectives of these voters on candidates and issues leading up to elections.
+
+**Frame:**
+Trafalgar’s sampling frame includes diverse demographics but places a special focus on identifying groups that may be underrepresented in traditional polling, such as rural voters, those with certain political affiliations, or individuals hesitant to participate in polls.
+
+**Sample:**
+Trafalgar typically uses a sample size between 1,000 to 1,500 respondents, which is statistically sufficient to provide reasonable confidence in the results. They apply stratified sampling techniques to ensure that the sample reflects demographic distributions similar to the population they wish to study.
+
+
+## Sampling recruitment:
+**Trafalgar Group recruits respondents through：**
+-interactive voice response (IVR) systems: An automated calling system where respondents answer pre-recorded questions by pressing keys on their phone, which quickly reach a large number of potential respondents
+
+- live phone calls: A method to capture insights from groups that may not respond to automated systems or online surveys, helps balance out potential biases from IVR and allows for clarification of questions,typically more time-consuming and costly, so they are often used selectively within Trafalgar’s hybrid approach.
+
+- text-to-online surveys ：Sending via SMS to selected respondents, directing them to complete a survey online,allowing Trafalgar to quickly adjust the survey sample based on demographic needs,inexpensive and flexible. However, this requires internet access,and limit reach in certain rural or economically disadvantaged populations.
+
+- online ad panels:  Recruirting spondents through online panels or by placing ads on websites and social media,helping access to broad demographic range, including harder-to-reach younger voters or individuals who prefer online anonymity.
+
+## Sampling Approaches and Trade-off:
+
+Trafalgar Group uses a hybrid sampling approach that includes IVR, live phone calls, and online panels. This stratified sampling model helps effectively recruit a diverse range of respondents, covering different demographics, political backgrounds, and geographic areas. 
+
+**Advantages:**
+- Effective: The hybrid method allows Trafalgar to reach a broader audience,and target different segments of populations effectively, because each method has its own demographic reach.
+
+**Disadvantages:**
+
+- Coverage Bias: Online panels and IVR may underrepresent certain groups, such as older adults or individuals without internet access. Trafalgar attempts to adjust for this with strategic oversampling and demographic weighting.
+
+- Cost and Complexity: Using multiple modes increases both the cost and the logistical complexity of each poll, making it challenging to standardize responses and data quality across different modes.
+
+## Handling Non-Response
+To address non-response, Trafalgar Group :
+- oversampling certain groups, particularly those they believe might avoid responding in standard surveys. 
+
+- Non-response weighting adjustments are then applied, with Trafalgar focusing on demographics such as age, gender, political affiliation, and geographical location to rebalance their final results.
+
+## Limitations:
+Although Trafalgar’s approach attempts to mitigate non-response bias, there is still potential for systematic bias if certain types of respondents consistently avoid all forms of contact.
+
+
+## Questionnaire Design: Strengths and Weakness
+
+**Strengths:**
+
+- Wide population polls: Trafalgar’s hybrid methodology allows them to reach a wide demographic range, including respondents who might avoid traditional polling methods.
+
+- High response rate: Their focus on brevity and targeted questioning increases response rates and may reduce bias.
+
+- Comprehensive data collection: Trafalgar’s strategic use of IVR and online methods can uncover voter sentiments that other methods may overlook.
+
+
+
+**Weakness:**
+
+- Coverage Bias: Their reliance on certain methodologies (e.g., online panels, IVR) could introduce coverage bias.
+
+- Lack of Clarity: The simplified questionnaire approach might lack the detail necessary for understanding complex voter motivations.
+
+- Systematic Bias: Non-response handling methods, while sophisticated, are not foolproof and may still result in some degree of systematic bias.
+
+
+## Conclusion:
+In conclusion, Trafalgar Group’s methodology is distinct in its goal to capture perspectives often missed by other pollsters, particularly those of “shy” or less vocal voters. However, their mixed-method approach has limitations and trade-offs that can impact data representativeness and detail. By analyzing Trafalgar’s approach, one gains insight into a methodology that aims to balance broad reach with a pragmatic focus on concise, strategically designed polling.
+
+\newpage
+
+
+# Appendix2: Idealized Survey Methodology and Design{#sec-appendix2}
+
+## Project Overview
+The objective of this survey is to forecast the outcome of the upcoming U.S. presidential election with a focus on obtaining a highly representative sample across diverse demographics, geographic regions, and political affiliations. This survey is designed to capture responses from 10,000 likely voters across the United States, with a final target margin of error around ±2%.
+
+## Sampling Approach
+
+**Target Population: ** The survey will target U.S. adults aged 18 and above who are registered and likely voters.
+
+**Sampling Frame:** We’ll utilize a stratified random sampling frame that accounts for demographics such as age, gender, income, geographic region, and political affiliation. This frame will ensure diverse and representative coverage, allowing for adjustments to match current Census data on voter demographics.
+
+## Sampling Strategy
+
+**Stratified Random Sampling:** The sample will be stratified by key demographic and political variables. This approach ensures balanced representation, particularly in swing states and among historically underrepresented groups.
+
+**Sample Size:** 10,000 respondents will be targeted, with additional sampling in key demographic and geographic subgroups to allow for precise analysis across groups.
+
+**Oversampling:** We will oversample in regions with diverse demographics and politically critical states (e.g., battleground states). This oversampling will help provide granular data for more accurate sub-group analysis.
+
+## Response recruitment
+We will recruit respondents through a combination of digital ads, SMS, IVR calls, and online panels to reach a wide and diverse population,similar to Trafalgar Group.
+
+**Digital Ads/online panel:** Ads will be run on social media platforms like Facebook, Twitter, and Instagram, targeting different age groups, geographic locations, and political interests. To capture perspectives from younger and digitally active voters.
+
+**SMS Recruitment:** Using purchased voter contact lists, we will send SMS invites to likely voters, directing them to the survey, allows quick engagement and higher response rates from mobile users.
+
+**Interactive Voice Response (IVR):** IVR will be employed to reach older and rural populations who are more likely to use landlines and respond to voice-based prompts.
+
+**Incentives:** we will offer small incentives (e.g., gift cards or donations to charity) to encourage survey completion, particularly for more challenging demographics.
+
+## Data validation
+
+To ensure data quality and reliability, the following control measures will be implemented:
+
+**Duplicate Responses:** Each respondent will provide unique identifiers (email or phone number), and duplicate responses will be removed through cross-checking.
+
+**Attention Checks:** We will use attention-check questions within the survey to verify that respondents are actively engaged and answering consistently.
+
+**Consistency Checks:** Responses will be monitored for logical consistency. For example, respondents who select inconsistent answers (e.g., choosing different candidates in repetitive questions) will be flagged.
+
+**Weighting Adjustments:** Post-survey weighting will be applied to adjust the sample to align with known population demographics and voting trends. Weighting will be based on factors such as age, gender, education, geographic region, and political affiliation to reduce bias and improve representativeness.
+
+## Poll Aggregation
+To provide more accurate forecast, this survey will be part of a comprehensive poll aggregation approach, combining data from multiple sources:
+
+**Aggregation:** Responses from various modes (IVR, SMS, online panels) will be aggregated, with weights assigned based on response mode to control for potential biases associated with each method, to address any demographic gaps (e.g. young or rural voters), post-stratification weighting will adjust the aggregate to better match the U.S. voting population.
+
+**Cross-Tabulation:** To explore voter preferences across different subgroups, we will conduct cross-tabulation analysis by demographics such as age, race, gender, and region，Polls will be weighted based on criteria such as sample size, recency, and methodological quality. Recent, large-sample, and rigorously conducted polls will be weighted more heavily in the aggregation.
+
+**Predictive Modeling:** Using historical election data, predictive models will be applied to forecast likely outcomes in critical states and nationwide.
+
+## Conclusion
+By employing a stratified sampling approach, this methodology captures the diverse perspectives of the U.S. electorate while mitigating potential biases through multi-channel recruitment and rigorous quality control.
+Incorporating a poll aggregation framework and scenario modeling further enhances forecast accuracy, allowing for more nuanced interpretations of voter behavior across key demographics and regions. This design maximizes the budget’s utility, leveraging diverse data sources to achieve a well-rounded, high-confidence prediction for the election outcome.
+The online survey attached [here](https://docs.google.com/forms/d/e/1FAIpQLSesUZvOcRaPSex8UsoGS6KDFSQZsgOSZKk6xSifeSQS3zx8OA/viewform?usp=sf_link).
+
+
+# Appendix A: Predictor variables summary table {#sec-appendixA}
+```{r}
+#| warning: false
+#| message: false
+#| label: fig-Xs
+#| fig-cap: "A Summary Table for Predictor Variables"
+#| fig_caption: true
+#| echo: false
+
+# Summary statistics for sample_size
+sample_size_summary <- data %>%
+  summarise(
+    count = n(),
+    mean = mean(sample_size, na.rm = TRUE),
+    sd= sd(sample_size, na.rm = TRUE),
+    min = min(sample_size, na.rm = TRUE),
+    max = max(sample_size, na.rm = TRUE))
+
+# Summary statistics for pollscore
+pollscore_summary <- data %>%
+  summarise(
+    mean = mean(pollscore, na.rm = TRUE),
+    sd = sd(pollscore, na.rm = TRUE),
+    min = min(pollscore, na.rm = TRUE),
+    max= max(pollscore, na.rm = TRUE))
+
+# Summary statistics for pct
+pct_summary <- data %>%
+  summarise(
+    mean = mean(pct, na.rm = TRUE),
+    sd = sd(pct, na.rm = TRUE),
+    min = min(pct, na.rm = TRUE),
+    max = max(pct, na.rm = TRUE))
+
+# Summary statistics for end_date
+end_date_summary <- data %>%
+  summarise(
+    min_date = min(end_date, na.rm = TRUE),
+    max_date = max(end_date, na.rm = TRUE),
+    range_days = as.numeric(max(end_date, na.rm = TRUE) - min(end_date, na.rm = TRUE))
+  )
+
+# Show the summary table visualization
+kable(sample_size_summary)
+kable(pollscore_summary)
+kable(pct_summary)
+kable(end_date_summary)
+```
+
+\newpage
+# Appendix B:Model justification {#sec-appendixB}
+The package rstanarm uses Markov chain Monte Carlo (MCMC) sampling algorithm to obtain samples from the posterior distributions of interest,therefore we can check whether the linear model converge to MCMC algorithm to access the quality of fit by trace plot. Since the trace plot show horizontal lines that appear to bounce around, with a nice overlap between the chains. The trace plot in (@fig-check_mcmc) does not suggest anything out of the ordinary. 
 ```{r}
 #| label: fig-check_liner
 #| fig-cap: Examining how the Bayesian linear regression model fits, and is affected by, the data
@@ -258,278 +615,21 @@ posterior_vs_prior_2 <- posterior_vs_prior(BA_linear_model) +
 ppcheck_2 + posterior_vs_prior_2 
 ```
 
-
 ```{r}
-#| label: fig-check_MCMC
+#| label: fig-check_mcmc
 #| fig-cap: Checking the convergence of the MCMC algorithm by trace plot and rhat plot on linear model
 #| echo: false
 #| warning: false
 #| message: false
 trace_plot <- plot(BA_linear_model, "trace")
-rhat_plot <- plot(BA_linear_model, "rhat")
-
-trace_plot + rhat_plot
+trace_plot
 ```
-The package rstanarm uses Markov chain Monte Carlo (MCMC) sampling algorithm to obtain samples from the posterior distributions of interest,therefore we can check whether the linear model converge to MCMC algorithm to access the quality of fit by trace plot and Rhat plot. Since the trace plot show horizontal lines that appear to bounce around, with a nice overlap between the chains. The trace plot in (@fig-check_MCMC) does not suggest anything out of the ordinary. Similarly,Rhat plot i (@fig-check_MCMC) show the R hat close to 1, and no more than 1.1. Therefore, the Bayesian linear model seem work well.
-
-\newpage
-
-
-# Results {#sec-result}
-
-```{r}
-#| echo: false
-#| eval: true
-#| warning: false
-#| message: false
-
-# check estimated coefficients by summary table
-summary(BA_linear_model)
-```
-The Bayesian linear regression model provides insights into how poll characteristics, specifically sample_size and pollscore, influence reported support percentage (pct). The posterior mean for sample_size is close to zero with a 95% credible interval that centers around zero, indicating that sample size has no significant impact on support percentage in this model. The coefficient for pollscore has a mean of -0.7 with a 95% credible interval from -0.8 to -0.6, suggesting a small but consistent negative effect. This means that as poll quality increases (higher pollscore), reported support slightly decreases, though this effect is modest.
-
-```{r}
-#| label: fig-mcmc
-#| fig-cap: 95% CI for Coefficients of sample_size, pollescore in linear regression model-a MCMC areas plot
-#| echo: false
-#| warning: false
-#| message: false
-
-library(bayesplot)
-
-# Extract posterior draws for each coefficient
-posterior_draws <- as.data.frame(as.matrix(BA_linear_model))
-
-# Plot credible intervals for each coefficient
-mcmc_areas(posterior_draws, 
-           pars = c("sample_size", "pollscore"),
-           prob = 0.95) + 
-  labs(title = "95% Credible Intervals for Coefficients",
-       x = "Coefficient Value",
-       y = "Predictors") +
-  theme_minimal()
-```
-The (@fig-mcmc) MCMC areas plot provides a visualization of the 95% credible intervals for the coefficients in our Bayesian linear regression model. For the `pollscore` coefficient, the credible interval is entirely below zero, aligning with the model summary’s indication of a modest negative effect. This suggests that higher poll quality is associated with slightly lower reported support percentages. In contrast, the `sample_size` coefficient is centered around zero, with its credible interval covering zero, indicating no significant effect on `pct`. This visualization reinforces the findings from the summary by highlighting which predictors significantly influence the support percentage.
-
-
-```{r}
-#| label: fig-pollscore
-#| fig-cap:  Effect of poll quality (pollscore) on support percentage (pct), showing a minor negative trend suggesting slightly lower support percentages in higher-quality polls.
-#| echo: false
-#| warning: false
-#| message: false
-
-# Plot effect of pollscore on pct
-ggplot(data, aes(x = pollscore, y = pct)) +
-  geom_point(alpha = 0.6) +
-  geom_smooth(method = "lm", se = TRUE, color = "blue") +
-  labs(title = "Effect of Poll Quality (Pollscore) on Support Percentage",
-       x = "Poll Quality (Pollscore)", y = "Support Percentage (pct)") +
-  theme_minimal()
-```
-In (@fig-pollscore), each point represents a poll’s support percentage (pct) plotted against its poll quality score (pollscore). The trend line shows a slight negative slope, declining from a support percentage of around 46 to 44, suggesting a weak negative relationship between poll quality and reported support. 
-This trend implies that as poll quality increases, the reported support percentage marginally decreases. However, this effect is minor, indicating that poll quality has limited influence on support levels, possibly reflecting the stability of support trends despite variations in poll quality across different polls.
-
-
-```{r}
-#| label: fig-size
-#| fig-cap: Relationship between log(sample siz)e and support percentage (pct), indicating minimal effect of sample size on rep
-#| echo: false
-#| warning: false
-#| message: false
-
-# Plot effect of log transformed sample size on pct
-ggplot(data, aes(x = log(sample_size), y = pct)) +
-  geom_point(alpha = 0.6) +
-  geom_smooth(method = "lm", se = TRUE, color = "green") +
-  labs(title = "Effect of Sample Size on Support Percentage (Log Scale)",
-       x = "Sample Size (log scale)", y = "Support Percentage (pct)") +
-  theme_minimal()
-
-```
-In (@fig-size), the relationship between `sample_size` and `pct` is displayed with a log scale on the x-axis to handle the wide range of sample sizes. The trend line is nearly flat, indicating minimal association between sample size and support percentage. 
-This flat trend suggests that larger sample sizes do not significantly impact reported support levels. The result implies that variations in sample size among polls do not meaningfully shift support percentages, reinforcing the stability of support trends across different sample sizes.
-
-
-```{r}
-#| label: fig-time_trend
-#| fig-cap: Time trend of support percentage for Harris and Trump in the 2024 U.S. presidential election, showing a recent increase in Harris's support, surpassing Trump.
-#| echo: false
-#| warning: false
-#| message: false
-
-# Create the plot
-ggplot(data, aes(x = as.Date(end_date), y = pct, color = answer)) +
-  geom_point(alpha = 0.7) +
-  geom_smooth(method = "loess", span = 0.5, se = TRUE) +
-  scale_color_manual(values = c("Harris" = "lightblue", "Trump" = "darkgreen")) +
-  labs(title = "Trend of Support for Harris and Trump Over Time",
-       x = "End Date",
-       y = "Support Percentage",
-       color = "Candidate") +
-  theme_minimal() +
-  theme(legend.position = "right")
-
-```
-Figure (@fig-time_trend) shows the trend in support percentages (pct) for Harris and Trump from 2021 to 2024. Throughout most of this period, Trump maintained a slight lead, with an average support rate around 3% higher than Harris’s between August 2022 and June 2024. However, in recent months, Harris’s support surged significantly, overtaking Trump with a notable upward spike. Aside from this recent increase, both candidates' support rates generally remain close, showing no large differences except for the recent jump in Harris’s support.
-Interpretation
-The recent rise in Harris’s support suggests a shift in voter preference leading up to the 2024 election, potentially influenced by recent political events or changes in campaign strategy. The overall similarity in support rates indicates that the race remains competitive, with support fluctuating within a narrow range for both candidates. Harris’s recent surge, however, may reflect growing momentum, making it a key trend to monitor as the election approaches. This pattern also highlights the importance of temporal trends, as public opinion can shift markedly in the months before an election.
-
-### Forecasting and Prediction Intervals
-After fitting the model, we generate forecasts by calculating predicted probabilities for each candidate across polls. To assess forecast reliability, we use 95% prediction intervals for each candidate’s aggregated support, providing a range within which actual support levels are likely to fall. Additionally, posterior predictive checks allow us to compare model predictions against observed poll results, enhancing forecast robustness. This setup not only estimates the probability of support but also offers interpretable intervals that reflect uncertainty, making the model’s forecasts more reliable for understanding potential election outcomes.
-
-```{r}
-#| include: false
-#| warning: false
-#| message: false
-#Aggregate linear Model Predictions by Candidate
-
-# Calculate posterior predictions for the linear model
-predicted_pct <- posterior_predict(BA_linear_model)
-
-# Calculate mean predictions and 95% prediction intervals for each poll
-data$predicted_pct <- rowMeans(t(predicted_pct))
-data$predicted_pct_lower <- apply(predicted_pct, 2, quantile, probs = 0.025)
-data$predicted_pct_upper <- apply(predicted_pct, 2, quantile, probs = 0.975)
-
-# Aggregate support percentage predictions by candidate
-pollster_aggregated_linear <- data %>%
-  group_by(answer) %>%
-  summarise(avg_predicted_pct = mean(predicted_pct, na.rm = TRUE),
-            lower_95_pct = mean(predicted_pct_lower, na.rm = TRUE),
-            upper_95_pct = mean(predicted_pct_upper, na.rm = TRUE))
-print(pollster_aggregated_linear)
-
-```
-```{r}
-#| label: fig-predict_pct
-#| fig-cap:  Aggregate predicted support percentages for Harris and Trump with 95% prediction intervals, illustrating the estimated support levels and associated uncertainty for each candidate
-#| echo: false
-#| warning: false
-#| message: false
-# Visualization for Linear Model Predictions (Support Percentage)
-
-ggplot(pollster_aggregated_linear, aes(x = answer, y = avg_predicted_pct, fill = answer)) +
-  geom_bar(stat = "identity", position = "dodge") +
-  geom_errorbar(aes(ymin = lower_95_pct, ymax = upper_95_pct), width = 0.2) +
-  labs(title = "Aggregate Support Percentage with 95% Prediction Intervals",
-       x = "Candidate", y = "Predicted Support Percentage") +
-  theme_minimal() +
-  scale_fill_manual(values = c("Harris" = "darkorange", "Trump" = "navyblue"))
-
-```
-
-According to (@fig-predict_pct), for the linear regression model, the average predicted support percentage for Harris is 44.75% with a 95% prediction interval from 35.41% to 54.10%, while Trump’s average predicted support percentage is 44.76%, with a similar 95% interval from 35.42% to 54.11%.
-These values reflect the average level of support that each candidate garners across polls, without translating this support directly into a probability of winning. Both candidates show nearly identical support percentages (with Trump slightly higher by only 0.01%), indicating that support levels are virtually tied. The prediction intervals, while narrower than the logistic model, still show considerable overlap, underscoring that both candidates have comparable levels of support within the polling data.
-This model provides insight into the aggregate support each candidate has across polls, rather than directly predicting a winner. It suggests stability in support levels and implies that neither candidate has a clear advantage in overall support percentage, highlighting a competitive election landscape.
-
-
-
-```{r}
-#| include: false
-#| warning: false
-#| message: false
-
-# Aggregate Logistic Model Predictions by Candidate
-
-# Calculate posterior predictions for the logistic model
-predicted_probs <- posterior_predict(BA_logis_model)
-
-# Calculate mean predicted probabilities and 95% prediction intervals
-data$predicted_prob <- rowMeans(t(predicted_probs))
-data$predicted_prob_lower <- apply(predicted_probs, 2, quantile, probs = 0.025)
-data$predicted_prob_upper <- apply(predicted_probs, 2, quantile, probs = 0.975)
-
-# Aggregate probability predictions by candidate
-pollster_aggregated_logistic <- data %>%
-  group_by(answer) %>%
-  summarise(avg_prob = mean(predicted_prob, na.rm = TRUE),
-            lower_95_prob = mean(predicted_prob_lower, na.rm = TRUE),
-            upper_95_prob = mean(predicted_prob_upper, na.rm = TRUE))
-print(pollster_aggregated_logistic)
-```
-
-
-```{r}
-#| label: fig-predict_support
-#| fig-cap: Aggregate predicted probabilities of support for Harris and Trump with 95% prediction intervals, reflecting the estimated likelihood of support for each candidate and the associated uncertainty in the logistic model
-#| echo: false
-#| warning: false
-#| message: false
-# Visualization for Logistic Model Predictions (Probability of Support)
-ggplot(pollster_aggregated_logistic, aes(x = answer, y = avg_prob, fill = answer)) +
-  geom_bar(stat = "identity", position = "dodge") +
-  geom_errorbar(aes(ymin = lower_95_prob, ymax = upper_95_prob), width = 0.2) +
-  labs(title = "Predicted Probability of Support with 95% Prediction Intervals",
-       x = "Candidate", y = "Predicted Probability") +
-  theme_minimal() +
-  scale_fill_manual(values = c("Harris" = "lightcoral", "Trump" = "lightblue"))
-```
-
-According to (@fig-predict_support).The Logistic Regression Model with Response "candidate_dummy" yields average predicted probabilities of support for each candidate. Harris has an average predicted probability of support at 0.2925, with a 95% prediction interval spanning from 0 to 1, while Trump has an average probability of 0.2451, with a 95% interval from 0 to 0.998.
-The probabilities from this model are indicative of the likelihood of each candidate receiving support in a head-to-head comparison. The slightly higher probability for Harris (0.2925 vs. 0.2451) suggests that she has a marginally stronger likelihood of support. However, the wide prediction intervals (spanning almost the full probability range for both candidates) reflect high uncertainty in the forecasts, indicating that both candidates are nearly equally likely to receive support within the observed data variability.
-Given the high uncertainty captured in the intervals, the model does not strongly favor one candidate as the definitive winner. Instead, it highlights that support is closely matched, with Harris having a slight edge. This approach meets the primary goal of forecasting potential election outcomes based on individual-level preferences.
-
-
-
-# Discussion {#sec-discussion}
-
-## Summary of Key Findings{#sec-first-point}
-In this study, we applied Bayesian linear and logistic regression models to forecast the likely outcome of the 2024 U.S. presidential election between Kamala Harris and Donald Trump. Using poll-level data that includes support percentages, sample sizes, and poll quality scores, we aimed to capture a detailed picture of voter preferences. The Bayesian linear regression model examined how poll characteristics impact reported support percentages, providing insight into polling data reliability and potential biases. The Bayesian logistic regression model then estimated each candidate’s probability of winning in head-to-head scenarios, allowing us to explore relative candidate advantage based on voter sentiment. Together, these models provide complementary perspectives on support trends and probabilities, enhancing the robustness of our election forecast.
-
-## Bayesian Linear Regression Model Insights (Average Support Levels)
-The linear model, which calculates average support percentages, found near-equal levels of support for Harris and Trump, with Harris at 44.75% and Trump at 44.76%. This model suggests that, across polls, the aggregate level of support for each candidate is almost identical, indicating a highly competitive race without a clear frontrunner. These results underscore the stability of overall support levels across various polls and suggest that differences in poll sample sizes and quality scores do not significantly impact the aggregate support. The linear model thus emphasizes the close nature of this election, showing no substantial difference between the candidates in terms of general support. However, while useful for understanding stability in public sentiment, this model does not account for head-to-head dynamics and may miss nuances in individual voter preference shifts.
-
-## Bayesian Logistic Model Insights (Probability of Support)
-The logistic model provides a more direct assessment of each candidate's probability of winning by estimating the likelihood of support for Harris over Trump in binary terms. In this model, Harris holds a slight edge with an average probability of 0.2925, compared to Trump’s 0.2451. This difference, though small, hints at a slight advantage for Harris in terms of head-to-head support likelihood. However, the wide prediction intervals (0 to 1 for Harris and 0 to 0.998 for Trump) indicate considerable uncertainty, highlighting the limitations of polling data and forecasting in capturing true electoral dynamics. This uncertainty suggests that while Harris may have a marginal lead, the probabilities are close enough that either candidate could still prevail. The logistic model, therefore, supports the notion of a competitive race but suggests that Harris may have a slight edge, albeit with caution due to the high level of forecast variability.
-
-## Time Trend Analysis and Recent Shift
-The time-trend analysis provides further context for interpreting these findings. Historically, Trump maintained a slight lead over Harris from mid-2022 to mid-2024, indicating a consistent edge in public support during that period. However, recent polling data reveals a significant rise in Harris’s support, allowing her to overtake Trump in the months leading up to the election. This late increase in support for Harris suggests a shift in momentum that could influence the final outcome. When viewed alongside the logistic model’s slight probability advantage for Harris, this recent uptick implies that she may be gaining favor as the election nears. The time trend’s emphasis on late-campaign dynamics supports the view that Harris has potential momentum, though this trend remains tentative and subject to change as additional data emerge.
-
-## Limitations and Model Assumptions
-Despite the strengths of this approach, several limitations should be acknowledged. First, while Bayesian models offer flexibility and the ability to incorporate prior information, the priors chosen may influence the results. We used relatively uninformative priors to minimize bias, but these selections inherently shape the posterior distributions, potentially affecting probability estimates. Another limitation lies in the data source: the reliance on publicly available polling data from various organizations introduces heterogeneity in sampling methods and question wording, which may contribute to variability that is difficult to account for fully in the models. Additionally, while we used posterior predictive checks to validate model fit, the wide intervals in the logistic model suggest high uncertainty, reflecting the challenge of forecasting elections with inherently noisy data.
-
-The logistic model, in particular, assumes that support for each candidate can be predicted based on a binary outcome, reducing voter preferences to a simple choice between Harris and Trump. This assumption may overlook the complexity of voter behavior and preferences, especially in a multi-dimensional electoral landscape. The linear model, while useful for understanding aggregate trends, may not fully capture the probability of individual voters’ support. These model assumptions, though reasonable for a first-pass analysis, indicate that our forecasts should be interpreted with caution.
-
-## Future Directions
-Looking ahead, there are several avenues for enhancing this analysis. One potential improvement is to refine the prior distributions for each model based on historical election data, which could provide more informative predictions. Additionally, integrating demographic data, such as voter age, education level, or geographic region, could enrich the models by capturing the diversity within voter bases, making forecasts more reflective of real-world voting patterns. Future work could also incorporate temporal weighting, giving more recent polls higher influence, which may help capture late shifts in sentiment more accurately.
-
-To address the limitations of binary support estimates, future studies could adopt a multinomial or ordinal approach, capturing a range of preferences rather than reducing support to a binary outcome. This would better reflect the complex decision-making process of voters and allow for the inclusion of third-party candidates if applicable. Finally, expanding the time-trend analysis could provide a more dynamic view of support trajectories, informing campaigns about how public opinion evolves in real-time. By refining these models and integrating more granular data, future research can build on the foundations laid here to create even more accurate and actionable election forecasts. 
-
-In summary, this paper provides a comprehensive approach to election forecasting through the combined use of Bayesian linear and logistic regression models, highlighting both the stability of support and the subtle competitive edge for Harris in the upcoming U.S. presidential election. While these findings offer valuable insights, continued refinement of the models and exploration of additional predictors would deepen our understanding of the evolving electoral landscape.
-
-\newpage
-
-# Conclusion {#sec-conclusion}
-
-This study provides a comprehensive analysis of the 2024 U.S. presidential election polling data, examining how poll characteristics—specifically sample size and poll quality—impact reported support percentages and employing Bayesian regression models to forecast the likely winner between Kamala Harris and Donald Trump. By exploring each of these dimensions, we gain a multifaceted view of voter sentiment, poll reliability, and support trends over time. Together, these analyses contribute to a more robust understanding of how polling data can be interpreted in forecasting election outcomes.
-
-Firstly, our analysis of poll characteristics revealed that sample size and poll quality had minimal impact on reported support levels. The Bayesian linear regression model showed only a slight negative association between poll quality and support, with support percentages decreasing marginally as quality increased. The relationship between sample size and support was nearly flat, indicating that variations in sample size did not meaningfully shift support levels. These findings highlight the robustness of aggregated poll data: methodological differences across polls introduce only minor variability, suggesting that aggregated polling data can reliably capture underlying voter sentiment. This insight reinforces the validity of using a “poll-of-polls” approach, where combining multiple polls mitigates the effects of individual poll characteristics and enhances the stability of support estimates.
-
-Secondly, our Bayesian linear and logistic regression models offered complementary perspectives on candidate support. The linear model, which analyzed average support levels, showed that both Harris and Trump have near-identical levels of aggregated support, with Harris at 44.75% and Trump at 44.76%. This indicates an exceptionally close race, with no candidate having a significant edge based on overall support percentages. The logistic model, however, provided a probability-based forecast of each candidate’s likelihood of winning in head-to-head scenarios. Here, Harris held a slight but uncertain lead over Trump, with probabilities of 0.2925 and 0.2451, respectively. While this probability difference is small, it suggests that, in competitive settings, Harris may have a slight advantage, though the wide prediction intervals caution against overconfidence in this result. The combination of these models underscores the nuanced nature of the race, with aggregate support levels indicating a tie but probability outcomes hinting at a possible edge for Harris.
-
-Finally, the time-trend analysis added depth to these findings by revealing a significant shift in candidate support over the past two years. From mid-2022 until mid-2024, Trump consistently led Harris by a small margin. However, recent months have seen a substantial increase in Harris’s support, surpassing Trump for the first time. This upward trend for Harris may reflect shifting voter dynamics or emerging factors influencing public opinion. When combined with the logistic model’s slight probability advantage for Harris, this recent increase in support suggests that Harris may be gaining momentum as the election nears. This trend emphasizes the dynamic nature of voter sentiment and the importance of temporal analysis in capturing shifts that aggregate models alone might overlook.
-
-In conclusion, this study highlights the strengths and limitations of using polling data to forecast election outcomes. By demonstrating that poll characteristics have minimal impact on aggregated support levels, validating the slight yet uncertain edge Harris may have, and revealing the evolving nature of voter sentiment, we provide a nuanced understanding of the 2024 presidential race. The findings underscore the importance of combining different analytical approaches—such as linear and logistic models, alongside time-trend analysis—to capture both stable and dynamic aspects of electoral support. This multidimensional approach enhances the credibility of polling-based forecasts and suggests that while close, Harris’s recent momentum could shape the final outcome. Future studies may further explore how temporal shifts impact electoral probabilities, especially in competitive races, to improve the reliability of predictive models in capturing late-stage changes in public sentiment.
-\newpage
-
-\appendix
-
-# Appendix1 {#sec-appendix1}
-
-# Appendix2 {#sec-appendix2}
-# Additional data details
-
-# Model details {#sec-model-details}
-
-## Posterior predictive check
 
 
 
 
 
 \newpage
-
 
 # References
 
